@@ -73,7 +73,7 @@ async function handleRegister() {
       <!-- Logo 和标题 -->
       <div class="header">
         <div class="logo-badge">
-          <img src="@/assets/logo.svg" alt="ChainPass" />
+          <img src="@/assets/logo.jpg" alt="ChainPass" />
         </div>
         <h1 class="title">创建账户</h1>
         <p class="subtitle">加入 ChainPass，开启区块链身份之旅</p>

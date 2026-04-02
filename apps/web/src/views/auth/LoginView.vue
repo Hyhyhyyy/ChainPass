@@ -95,7 +95,7 @@ onMounted(() => {
       <!-- Logo 和标题 -->
       <div class="header">
         <div class="logo-badge">
-          <img src="@/assets/logo.svg" alt="ChainPass" />
+          <img src="@/assets/logo.jpg" alt="ChainPass" />
         </div>
         <h1 class="title">ChainPass</h1>
         <p class="subtitle">区块链身份验证系统</p>

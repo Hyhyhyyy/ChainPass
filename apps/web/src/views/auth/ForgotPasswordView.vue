@@ -70,7 +70,7 @@ async function handleReset() {
       <!-- Logo 和标题 -->
       <div class="header">
         <div class="logo-badge">
-          <img src="@/assets/logo.svg" alt="ChainPass" />
+          <img src="@/assets/logo.jpg" alt="ChainPass" />
         </div>
         <h1 class="title">找回密码</h1>
         <p class="subtitle">输入您的邮箱地址，我们将发送重置链接</p>

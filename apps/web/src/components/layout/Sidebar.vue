@@ -90,7 +90,7 @@ function navigateTo(path: string) {
     <!-- Logo -->
     <div class="logo-container" @click="navigateTo('/dashboard')">
       <div class="logo-icon">
-        <img src="@/assets/logo.svg" alt="ChainPass" class="logo" />
+        <img src="@/assets/logo.jpg" alt="ChainPass" class="logo" />
       </div>
       <transition name="fade">
         <span v-if="!collapsed" class="logo-text">ChainPass</span>
