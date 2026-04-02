@@ -3,6 +3,10 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { userApi } from '@/api'
 import type { UserInfo } from '@chainpass/shared/types'
+import { mockUserList } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 // 搜索表单
 const searchForm = reactive({
@@ -63,15 +67,31 @@ const statusOptions = [
 async function getUserList() {
   loading.value = true
   try {
-    const response = await userApi.getUserList({
-      ...searchForm,
-      page: pagination.page,
-      pageSize: pagination.pageSize,
-    })
+    if (PREVIEW_MODE) {
+      // 使用预览数据
+      let filteredList = [...mockUserList]
+      if (searchForm.username) {
+        filteredList = filteredList.filter(u => u.username.includes(searchForm.username))
+      }
+      if (searchForm.email) {
+        filteredList = filteredList.filter(u => u.email.includes(searchForm.email))
+      }
+      if (searchForm.status !== undefined) {
+        filteredList = filteredList.filter(u => u.status === searchForm.status)
+      }
+      userList.value = filteredList
+      pagination.total = filteredList.length
+    } else {
+      const response = await userApi.getUserList({
+        ...searchForm,
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+      })
 
-    if (response.code === 200 && response.data) {
-      userList.value = response.data.list
-      pagination.total = response.data.total
+      if (response.code === 200 && response.data) {
+        userList.value = response.data.list
+        pagination.total = response.data.total
+      }
     }
   } catch (error) {
     ElMessage.error('获取用户列表失败')

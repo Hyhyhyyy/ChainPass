@@ -5,6 +5,11 @@ import type { ApiResponse } from '@chainpass/shared/types'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
+// ============================================
+// 预览模式开关 - 设为 true 可直接预览所有页面
+// ============================================
+const MOCK_MODE = true
+
 // 配置 NProgress
 NProgress.configure({ showSpinner: false })
 
@@ -76,7 +81,7 @@ request.interceptors.request.use(
 
 // 响应拦截器
 request.interceptors.response.use(
-  (response: AxiosResponse<ApiResponse>) => {
+  (response: AxiosResponse<ApiResponse>): AxiosResponse<ApiResponse> | Promise<AxiosResponse<ApiResponse>> => {
     NProgress.done()
 
     // 从pending中移除
@@ -91,7 +96,7 @@ request.interceptors.response.use(
       return Promise.reject(new Error(data.msg || '请求失败'))
     }
 
-    return data
+    return response
   },
   async (error) => {
     NProgress.done()
@@ -103,6 +108,18 @@ request.interceptors.response.use(
 
     const { response, config } = error
     const userStore = useUserStore()
+
+    // Mock 模式：后端不可用时返回模拟数据
+    if (MOCK_MODE && !response) {
+      console.log('[Mock Mode] 后端不可用，返回模拟数据:', config.url)
+      return Promise.resolve({
+        data: { code: 200, msg: 'success', data: null },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: config,
+      } as AxiosResponse<ApiResponse>)
+    }
 
     if (response) {
       const { status, data } = response
@@ -121,27 +138,41 @@ request.interceptors.response.use(
             } catch {
               // 刷新失败，清除登录状态
               userStore.clearAuth()
-              window.location.href = '/auth/login'
+              // Mock 模式下不跳转登录页
+              if (!MOCK_MODE) {
+                window.location.href = '/auth/login'
+              }
             }
-          } else {
+          } else if (!MOCK_MODE) {
             userStore.clearAuth()
             window.location.href = '/auth/login'
           }
           break
         }
         case 403:
-          ElMessage.error('无权访问')
+          if (!MOCK_MODE) ElMessage.error('无权访问')
           break
         case 404:
-          ElMessage.error('请求的资源不存在')
+          if (!MOCK_MODE) ElMessage.error('请求的资源不存在')
           break
         case 500:
-          ElMessage.error('服务器内部错误')
+          if (!MOCK_MODE) ElMessage.error('服务器内部错误')
           break
         default:
-          ElMessage.error(data?.msg || `请求错误: ${status}`)
+          if (!MOCK_MODE) ElMessage.error(data?.msg || `请求错误: ${status}`)
       }
-    } else {
+
+      // Mock 模式下返回空数据而不是报错
+      if (MOCK_MODE) {
+        return Promise.resolve({
+          data: { code: 200, msg: 'success', data: null },
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: config,
+        } as AxiosResponse<ApiResponse>)
+      }
+    } else if (!MOCK_MODE) {
       ElMessage.error('网络连接异常，请检查网络')
     }
 

@@ -45,30 +45,31 @@ const sidebarWidth = computed(() => (appStore.sidebarCollapsed ? '64px' : '240px
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--color-bg-secondary);
+  background-color: #f3f4f6;
 }
 
 .main-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  transition: margin-left var(--transition-normal);
+  transition: margin-left 0.3s ease;
   min-height: 100vh;
 }
 
 .content-wrapper {
   flex: 1;
-  padding: var(--spacing-lg);
+  padding: 24px;
   overflow-y: auto;
+  background-color: #f3f4f6;
 }
 
 .footer {
-  padding: var(--spacing-md);
+  padding: 16px;
   text-align: center;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  border-top: 1px solid var(--color-border-light);
-  background-color: var(--color-bg-primary);
+  color: #6b7280;
+  font-size: 14px;
+  border-top: 1px solid #e5e7eb;
+  background-color: #ffffff;
 }
 
 .fade-slide-enter-active,

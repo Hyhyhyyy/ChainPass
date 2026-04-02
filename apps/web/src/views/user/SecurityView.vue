@@ -2,12 +2,16 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  Lock, Key, Shield, Fingerprint, Device,
+  Lock, Key, Monitor,
   CircleCheck, CircleClose, Warning, Refresh,
   Edit, View
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
 import { didApi } from '@/api/did'
+import { mockDID, mockDevices } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 const userStore = useUserStore()
 
@@ -30,18 +34,20 @@ const securitySettings = ref({
 })
 
 // 登录设备列表
-const devices = ref([
-  { id: 1, name: 'Windows PC', location: '大连, 辽宁', lastActive: '2026-04-01 10:30', current: true },
-  { id: 2, name: 'iPhone 15', location: '大连, 辽宁', lastActive: '2026-03-30 14:20', current: false }
-])
+const devices = ref(mockDevices)
 
 // 获取DID信息
 async function fetchDIDInfo() {
   try {
-    const res = await didApi.getMy()
-    if (res.code === 200 && res.data) {
-      didInfo.value = res.data
-      securitySettings.value.didAuthEnabled = res.data.status === 'ACTIVE'
+    if (PREVIEW_MODE) {
+      didInfo.value = mockDID as any
+      securitySettings.value.didAuthEnabled = mockDID.status === 'ACTIVE'
+    } else {
+      const res = await didApi.getMy()
+      if (res.code === 200 && res.data) {
+        didInfo.value = res.data
+        securitySettings.value.didAuthEnabled = res.data.status === 'ACTIVE'
+      }
     }
   } catch {
     didInfo.value = null
@@ -184,7 +190,7 @@ onMounted(() => {
             </el-descriptions-item>
             <el-descriptions-item label="签名算法">Ed25519</el-descriptions-item>
           </el-descriptions>
-          <el-button type="primary" link :icon="Shield" @click="verifyDIDSignature">
+          <el-button type="primary" link :icon="Key" @click="verifyDIDSignature">
             验证DID签名
           </el-button>
         </div>
@@ -239,7 +245,7 @@ onMounted(() => {
       <template #header>
         <div class="card-header">
           <span>
-            <el-icon><Device /></el-icon>
+            <el-icon><Monitor /></el-icon>
             登录设备管理
           </span>
           <el-button link type="danger">移除所有其他设备</el-button>
@@ -249,7 +255,7 @@ onMounted(() => {
       <div class="devices-list">
         <div v-for="device in devices" :key="device.id" class="device-item">
           <div class="device-icon">
-            <el-icon :size="24"><Device /></el-icon>
+            <el-icon :size="24"><Monitor /></el-icon>
           </div>
           <div class="device-info">
             <div class="device-name">

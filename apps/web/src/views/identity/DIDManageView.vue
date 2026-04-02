@@ -3,10 +3,14 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Plus, Key, CopyDocument, Refresh, Right,
-  Shield, CircleCheck, Timer, Document,
+  Lock, CircleCheck, Timer, Document,
   InfoFilled, SuccessFilled, WarningFilled
 } from '@element-plus/icons-vue'
 import { didApi, type DIDResponse } from '@/api/did'
+import { mockDID } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 // 状态
 const loading = ref(false)
@@ -34,11 +38,15 @@ const statusConfig = computed(() => {
 async function fetchDID() {
   loading.value = true
   try {
-    const res = await didApi.getMy()
-    if (res.code === 200 && res.data) {
-      didInfo.value = res.data
+    if (PREVIEW_MODE) {
+      didInfo.value = mockDID as any
     } else {
-      didInfo.value = null
+      const res = await didApi.getMy()
+      if (res.code === 200 && res.data) {
+        didInfo.value = res.data
+      } else {
+        didInfo.value = null
+      }
     }
   } catch {
     didInfo.value = null
@@ -128,7 +136,7 @@ onMounted(() => {
 
         <div class="features-brief">
           <div class="feature-item">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
             <span>自主控制</span>
           </div>
           <div class="feature-item">
@@ -204,7 +212,7 @@ onMounted(() => {
         </div>
         <div class="info-card">
           <div class="info-icon success">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
           </div>
           <div class="info-content">
             <span class="info-label">签名算法</span>
@@ -226,7 +234,7 @@ onMounted(() => {
       <div class="key-card">
         <div class="card-header">
           <h3>
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
             公钥信息
           </h3>
         </div>
@@ -270,7 +278,7 @@ onMounted(() => {
       <div class="info-cards">
         <div class="info-item">
           <div class="info-item-icon">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
           </div>
           <div class="info-item-content">
             <h4>自主可控</h4>

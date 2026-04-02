@@ -4,6 +4,10 @@ import { ElMessage } from 'element-plus'
 import { Tickets, Document, CircleCheck, CircleClose, Clock } from '@element-plus/icons-vue'
 import { vcApi, type VCResponse, type VCType, type VerifyResult } from '@/api/vc'
 import { didApi } from '@/api/did'
+import { mockVCList } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 // 状态
 const loading = ref(false)
@@ -23,16 +27,27 @@ const revokedVcs = computed(() => vcList.value.filter(vc => vc.status === 'REVOK
 async function fetchVCList() {
   loading.value = true
   try {
-    const [listRes, typesRes] = await Promise.all([
-      vcApi.getMy(),
-      vcApi.getTypes()
-    ])
+    if (PREVIEW_MODE) {
+      vcList.value = mockVCList.map((vc, index) => ({
+        ...vc,
+        vcId: vc.vcId,
+        typeName: vc.type === 'KYCCredential' ? 'KYC认证凭证' : '支付凭证',
+        issuedAt: vc.issuanceDate,
+        expiresAt: vc.expirationDate,
+        status: vc.status
+      })) as any
+    } else {
+      const [listRes, typesRes] = await Promise.all([
+        vcApi.getMy(),
+        vcApi.getTypes()
+      ])
 
-    if (listRes.code === 200) {
-      vcList.value = listRes.data || []
-    }
-    if (typesRes.code === 200) {
-      vcTypes.value = typesRes.data || []
+      if (listRes.code === 200) {
+        vcList.value = listRes.data || []
+      }
+      if (typesRes.code === 200) {
+        vcTypes.value = typesRes.data || []
+      }
     }
   } catch (error) {
     console.error('获取凭证列表失败:', error)

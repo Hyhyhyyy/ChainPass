@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { User, Lock, Promotion, Key, InfoFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
 import type { FormInstance, FormRules } from 'element-plus'
 import QRLogin from '@/components/business/QRLogin.vue'

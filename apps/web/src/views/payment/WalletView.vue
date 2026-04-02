@@ -3,9 +3,13 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Wallet, CreditCard, TrendCharts, Refresh, ArrowUp, ArrowDown,
-  Position, Document, Right, Plus, CopyDocument, Shield
+  Position, Document, Right, Plus, CopyDocument, Lock
 } from '@element-plus/icons-vue'
 import { paymentApi, type Wallet as WalletType, type TransactionHistory } from '@/api/payment'
+import { mockWallet, mockTransactions } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 // 状态
 const loading = ref(false)
@@ -47,9 +51,13 @@ const balanceItems = computed(() => {
 async function fetchWallet() {
   loading.value = true
   try {
-    const res = await paymentApi.getWallet()
-    if (res.code === 200 && res.data) {
-      wallet.value = res.data
+    if (PREVIEW_MODE) {
+      wallet.value = mockWallet as any
+    } else {
+      const res = await paymentApi.getWallet()
+      if (res.code === 200 && res.data) {
+        wallet.value = res.data
+      }
     }
   } catch (error: any) {
     if (error.message !== '请先创建DID') {
@@ -63,9 +71,13 @@ async function fetchWallet() {
 // 获取交易历史
 async function fetchHistory() {
   try {
-    const res = await paymentApi.getHistory()
-    if (res.code === 200) {
-      transactions.value = res.data || []
+    if (PREVIEW_MODE) {
+      transactions.value = mockTransactions as any
+    } else {
+      const res = await paymentApi.getHistory()
+      if (res.code === 200) {
+        transactions.value = res.data || []
+      }
     }
   } catch {
     transactions.value = []
@@ -259,7 +271,7 @@ onMounted(() => {
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
           </div>
           <h4>安全存储</h4>
           <p>资产由区块链技术保护</p>

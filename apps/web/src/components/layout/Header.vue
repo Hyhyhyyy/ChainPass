@@ -138,7 +138,7 @@ function handleCommand(command: string) {
   justify-content: space-between;
   height: 64px;
   padding: 0 24px;
-  background-color: white;
+  background-color: #ffffff;
   border-bottom: 1px solid #f1f5f9;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }

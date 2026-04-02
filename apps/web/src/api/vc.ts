@@ -86,6 +86,12 @@ export const vcApi = {
   getMy: () => request.get<ApiResponse<VCResponse[]>>('/vc/my'),
 
   /**
+   * 根据DID获取凭证列表 (别名)
+   */
+  getList: (did: string) =>
+    request.get<ApiResponse<VCResponse[]>>(`/vc/list/${encodeURIComponent(did)}`),
+
+  /**
    * 根据DID获取凭证列表
    */
   getByDid: (did: string) =>

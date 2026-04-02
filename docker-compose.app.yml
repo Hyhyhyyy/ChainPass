@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    container_name: chainpass-server
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:mysql://mysql:3306/chainpass?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      - DB_USERNAME=chainpass
+      - DB_PASSWORD=chainpass_secure_password_change_this
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=chainpass_redis_password
+      - JWT_SECRET=chainpass-default-secret-key-please-change-in-production
+    networks:
+      - chainpass-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # 前端服务
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: chainpass-web
+    ports:
+      - "80:80"
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - chainpass-network
+
+networks:
+  chainpass-network:
+    external: true

@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # 后端服务
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    container_name: chainpass-server
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:mysql://mysql:3306/chainpass?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      - DB_USERNAME=${DB_USERNAME:-chainpass}
+      - DB_PASSWORD=${DB_PASSWORD:-chainpass_secure_password_change_this}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-chainpass_redis_password}
+      - JWT_SECRET=${JWT_SECRET:-chainpass-default-secret-key-please-change-in-production}
+      - GITEE_CLIENT_ID=${GITEE_CLIENT_ID:-}
+      - GITEE_CLIENT_SECRET=${GITEE_CLIENT_SECRET:-}
+      - GITEE_REDIRECT_URI=${GITEE_REDIRECT_URI:-http://localhost/oauth/gitee/callback}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - chainpass-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # 前端服务
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: chainpass-web
+    ports:
+      - "80:80"
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - chainpass-network
+
+  # MySQL (如果已存在则跳过)
+  mysql:
+    image: mysql:8.0
+    container_name: chainpass-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-chainpass_secure_password_change_this}
+      MYSQL_DATABASE: chainpass
+      MYSQL_USER: ${DB_USERNAME:-chainpass}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-chainpass_secure_password_change_this}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chainpass-network
+
+  # Redis (如果已存在则跳过)
+  redis:
+    image: redis:7-alpine
+    container_name: chainpass-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-chainpass_redis_password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-chainpass_redis_password}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chainpass-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  chainpass-network:
+    name: chainpass-network
+    driver: bridge

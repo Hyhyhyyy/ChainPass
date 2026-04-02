@@ -29,8 +29,8 @@
         </div>
         <QRCodeVue3
           :value="qrContent"
-          :size="200"
-          :margin="2"
+          :size="180"
+          :margin="1"
           :dotsOptions="{ type: 'square' }"
           :cornersSquareOptions="{ type: 'square' }"
         />
@@ -101,7 +101,8 @@ const createQRCode = async () => {
       startPolling()
     }
   } catch (error) {
-    ElMessage.error('生成二维码失败')
+    ElMessage.error('生成二维码失败，请稍后重试')
+    expired.value = true
   } finally {
     loading.value = false
   }
@@ -169,29 +170,29 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 10px;
 }
 
 .qr-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 
   h3 {
-    margin: 0 0 8px;
-    font-size: 18px;
+    margin: 0 0 6px;
+    font-size: 16px;
     font-weight: 600;
   }
 
   .qr-tip {
     margin: 0;
     color: var(--el-text-color-secondary);
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 
 .qr-content {
-  width: 240px;
-  height: 240px;
+  width: 200px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,7 +220,7 @@ onUnmounted(() => {
 
 .qr-code-wrapper {
   position: relative;
-  padding: 20px;
+  padding: 10px;
 
   .qr-mask {
     position: absolute;
@@ -264,6 +265,6 @@ onUnmounted(() => {
 }
 
 .qr-footer {
-  margin-top: 24px;
+  margin-top: 16px;
 }
 </style>

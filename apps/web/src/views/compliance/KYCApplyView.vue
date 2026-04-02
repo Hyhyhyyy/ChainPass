@@ -3,11 +3,15 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   DocumentChecked, Loading, CircleCheck, CircleClose,
-  Upload, Right, Shield, User, Location, Stamp,
+  Upload, Right, Lock, User, Location, Stamp,
   WarningFilled, SuccessFilled
 } from '@element-plus/icons-vue'
 import { kycApi, type KYCResponse, type KYCStatusResponse, ID_TYPE_OPTIONS, NATIONALITY_OPTIONS } from '@/api/kyc'
 import { didApi } from '@/api/did'
+import { mockKYCStatus, mockKYCDetail } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 // 状态
 const loading = ref(false)
@@ -40,7 +44,7 @@ const kycLevels = [
     name: '基础认证',
     desc: '姓名、国籍、证件信息验证',
     features: ['跨境支付基础权限', '单笔限额 ¥5,000', '每日限额 ¥20,000'],
-    icon: Shield,
+    icon: Lock,
     color: '#3b82f6'
   },
   {
@@ -63,6 +67,10 @@ const kycLevels = [
 
 // 检查DID状态
 async function checkDID() {
+  if (PREVIEW_MODE) {
+    hasDID.value = true
+    return
+  }
   try {
     const res = await didApi.getMy()
     hasDID.value = res.code === 200 && !!res.data
@@ -75,16 +83,21 @@ async function checkDID() {
 async function fetchKYCStatus() {
   loading.value = true
   try {
-    const [statusRes, detailRes] = await Promise.all([
-      kycApi.getStatus(),
-      kycApi.getDetail()
-    ])
+    if (PREVIEW_MODE) {
+      kycStatus.value = mockKYCStatus as any
+      kycDetail.value = mockKYCDetail as any
+    } else {
+      const [statusRes, detailRes] = await Promise.all([
+        kycApi.getStatus(),
+        kycApi.getDetail()
+      ])
 
-    if (statusRes.code === 200) {
-      kycStatus.value = statusRes.data
-    }
-    if (detailRes.code === 200) {
-      kycDetail.value = detailRes.data
+      if (statusRes.code === 200) {
+        kycStatus.value = statusRes.data
+      }
+      if (detailRes.code === 200) {
+        kycDetail.value = detailRes.data
+      }
     }
   } catch (error) {
     console.error('获取KYC状态失败:', error)
@@ -150,7 +163,7 @@ onMounted(() => {
     <div class="page-header">
       <div class="header-content">
         <h1>
-          <el-icon class="title-icon"><Shield /></el-icon>
+          <el-icon class="title-icon"><Lock /></el-icon>
           KYC 身份认证
         </h1>
         <p>完成身份认证，解锁跨境支付功能</p>
@@ -357,7 +370,7 @@ onMounted(() => {
       <h3>🔒 安全保障</h3>
       <div class="security-grid">
         <div class="security-item">
-          <el-icon><Shield /></el-icon>
+          <el-icon><Lock /></el-icon>
           <span>所有身份数据加密存储</span>
         </div>
         <div class="security-item">
@@ -369,7 +382,7 @@ onMounted(() => {
           <span>认证通过自动签发VC凭证</span>
         </div>
         <div class="security-item">
-          <el-icon><Shield /></el-icon>
+          <el-icon><Lock /></el-icon>
           <span>支持零知识证明验证</span>
         </div>
       </div>

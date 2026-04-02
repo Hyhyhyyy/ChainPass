@@ -3,10 +3,14 @@ import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Position, Refresh, InfoFilled, Right, Wallet,
-  ArrowRight, CircleCheck, Shield, Timer
+  ArrowRight, CircleCheck, Lock, Timer
 } from '@element-plus/icons-vue'
 import { paymentApi, type PaymentOrder } from '@/api/payment'
 import { didApi } from '@/api/did'
+import { mockWallet, mockExchangeRate, mockDID } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 // 表单数据
 const form = ref({
@@ -50,10 +54,17 @@ async function fetchRate() {
 
   rateLoading.value = true
   try {
-    const res = await paymentApi.getRate(form.value.currency, form.value.targetCurrency)
-    if (res.code === 200 && res.data) {
-      currentRate.value = res.data
+    if (PREVIEW_MODE) {
+      // 使用模拟汇率
+      const rateKey = `${form.value.currency}_${form.value.targetCurrency}` as keyof typeof mockExchangeRate
+      currentRate.value = mockExchangeRate[rateKey] || 0.14
       calculateEstimate()
+    } else {
+      const res = await paymentApi.getRate(form.value.currency, form.value.targetCurrency)
+      if (res.code === 200 && res.data) {
+        currentRate.value = res.data
+        calculateEstimate()
+      }
     }
   } catch {
     ElMessage.error('获取汇率失败')
@@ -97,22 +108,35 @@ async function submitPayment() {
 
   loading.value = true
   try {
-    const checkRes = await didApi.check(form.value.payeeDid)
-    if (checkRes.code !== 200 || !checkRes.data) {
-      ElMessage.error('收款人DID无效')
-      return
-    }
-
-    const res = await paymentApi.createOrder({
-      payeeDid: form.value.payeeDid,
-      amount: form.value.amount,
-      currency: form.value.currency,
-      targetCurrency: form.value.targetCurrency || undefined
-    })
-
-    if (res.code === 200 && res.data) {
-      createdOrder.value = res.data
+    if (PREVIEW_MODE) {
+      // 模拟创建订单
+      createdOrder.value = {
+        orderNo: 'TX' + Date.now(),
+        payeeDid: form.value.payeeDid,
+        amount: form.value.amount,
+        currency: form.value.currency,
+        exchangeRate: currentRate.value,
+        feeAmount: form.value.amount * 0.001
+      } as any
       showConfirm.value = true
+    } else {
+      const checkRes = await didApi.check(form.value.payeeDid)
+      if (checkRes.code !== 200 || !checkRes.data) {
+        ElMessage.error('收款人DID无效')
+        return
+      }
+
+      const res = await paymentApi.createOrder({
+        payeeDid: form.value.payeeDid,
+        amount: form.value.amount,
+        currency: form.value.currency,
+        targetCurrency: form.value.targetCurrency || undefined
+      })
+
+      if (res.code === 200 && res.data) {
+        createdOrder.value = res.data
+        showConfirm.value = true
+      }
     }
   } catch (error: any) {
     ElMessage.error(error.message || '创建订单失败')
@@ -127,10 +151,16 @@ async function executePayment() {
 
   loading.value = true
   try {
-    const res = await paymentApi.execute(createdOrder.value.orderNo)
-    if (res.code === 200) {
+    if (PREVIEW_MODE) {
+      // 模拟支付成功
       showConfirm.value = false
       showSuccess.value = true
+    } else {
+      const res = await paymentApi.execute(createdOrder.value.orderNo)
+      if (res.code === 200) {
+        showConfirm.value = false
+        showSuccess.value = true
+      }
     }
   } catch (error: any) {
     ElMessage.error(error.message || '支付失败')
@@ -180,7 +210,7 @@ function getFlag(currency: string) {
       </div>
       <div class="header-features">
         <div class="feature">
-          <el-icon><Shield /></el-icon>
+          <el-icon><Lock /></el-icon>
           <span>DID验证</span>
         </div>
         <div class="feature">
@@ -333,7 +363,7 @@ function getFlag(currency: string) {
       <div class="info-section">
         <div class="info-card">
           <h4>
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
             安全保障
           </h4>
           <ul>

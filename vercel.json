@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @chainpass/web build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "pnpm install",
+  "framework": "vue"
+}

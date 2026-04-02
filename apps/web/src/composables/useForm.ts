@@ -21,16 +21,18 @@ export function useForm<T extends Record<string, any>>(initialValues: T) {
     errors.value = {}
   }
 
-  const validate = async (rules: Record<keyof T, (value: any) => string | null>[]) => {
+  const validate = async (rules: Partial<Record<keyof T, (value: any) => string | null>>) => {
     clearErrors()
     let isValid = true
 
     for (const field in rules) {
       const rule = rules[field as keyof T]
-      const error = rule(form.value[field])
-      if (error) {
-        errors.value[field] = error
-        isValid = false
+      if (rule) {
+        const error = rule(form.value[field as keyof T])
+        if (error) {
+          errors.value[field] = error
+          isValid = false
+        }
       }
     }
 

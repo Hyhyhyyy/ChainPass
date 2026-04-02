@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
-  User, Key, Wallet, Shield, Tickets, Position,
+  User, Key, Wallet, Lock, Tickets, Position,
   CircleCheck, CircleClose, Loading, Document,
   ArrowUp, ArrowDown, Plus, Refresh, Right,
   QuestionFilled, Star, Timer
@@ -13,6 +13,10 @@ import { didApi } from '@/api/did'
 import { vcApi } from '@/api/vc'
 import { paymentApi, type TransactionHistory } from '@/api/payment'
 import { kycApi } from '@/api/kyc'
+import { mockDID, mockWallet, mockKYCStatus, mockVCList, mockTransactions } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -45,7 +49,7 @@ const guideSteps = [
   {
     title: '完成KYC认证',
     description: '通过身份认证后可获得支付凭证，解锁跨境支付功能',
-    icon: Shield,
+    icon: Lock,
     action: '/compliance/kyc',
     completed: false
   },
@@ -135,8 +139,20 @@ async function fetchRecentTransactions() {
 async function refreshAll() {
   loading.value = true
   try {
-    await Promise.all([fetchDIDStatus(), fetchWallet(), fetchKYCStatus()])
-    await Promise.all([fetchVCList(), fetchRecentTransactions()])
+    // 预览模式使用假数据
+    if (PREVIEW_MODE) {
+      didStatus.value = mockDID as any
+      guideSteps[0].completed = true
+      walletInfo.value = mockWallet as any
+      kycStatus.value = mockKYCStatus as any
+      guideSteps[1].completed = true
+      vcList.value = mockVCList as any
+      recentTransactions.value = mockTransactions.slice(0, 5) as any
+      guideSteps[2].completed = true
+    } else {
+      await Promise.all([fetchDIDStatus(), fetchWallet(), fetchKYCStatus()])
+      await Promise.all([fetchVCList(), fetchRecentTransactions()])
+    }
   } finally {
     loading.value = false
   }
@@ -275,7 +291,7 @@ onMounted(() => {
       <div class="feature-card kyc-feature" @click="router.push('/compliance/kyc')">
         <div class="feature-header">
           <div class="feature-icon kyc">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
           </div>
           <el-tag :type="kycVerified ? 'success' : (kycStatus?.status === 'PENDING' ? 'warning' : 'info')" effect="dark" size="small">
             {{ kycVerified ? '已认证' : (kycStatus?.status === 'PENDING' ? '审核中' : '未认证') }}
@@ -382,7 +398,7 @@ onMounted(() => {
         </div>
         <div class="action-card security" @click="router.push('/user/security')">
           <div class="action-icon">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
           </div>
           <div class="action-info">
             <h4>安全设置</h4>
@@ -432,7 +448,7 @@ onMounted(() => {
         </div>
         <div class="intro-item">
           <div class="intro-icon">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
           </div>
           <h4>隐私保护</h4>
           <p>零知识证明技术，验证身份不暴露隐私</p>

@@ -3,6 +3,9 @@ import { ref, computed } from 'vue'
 import { authApi, oauthApi, zkpApi } from '@/api'
 import type { LoginRequest, LoginResponse, RegisterRequest } from '@chainpass/shared/types'
 
+// 预览模式开关
+const PREVIEW_MODE = true
+
 /**
  * 解析JWT获取过期时间
  */
@@ -39,6 +42,18 @@ export const useUserStore = defineStore(
     const giteeId = ref<string>('')
     const roles = ref<string[]>([])
     const permissions = ref<string[]>([])
+    const createdAt = ref<string>('')
+
+    // Token验证函数（需要在computed之前定义）
+    function isTokenValid(): boolean {
+      if (!accessToken.value) return false
+      return tokenExpiresAt.value > Date.now()
+    }
+
+    function isRefreshTokenValid(): boolean {
+      if (!refreshToken.value) return false
+      return refreshTokenExpiresAt.value > Date.now()
+    }
 
     // Getters
     const isLoggedIn = computed(() => !!accessToken.value && isTokenValid())
@@ -63,7 +78,19 @@ export const useUserStore = defineStore(
       refreshTokenExpiresAt.value = refreshExp || Date.now() + 7 * 24 * 60 * 60 * 1000
     }
 
-    function setUserInfo(userInfo: Partial<typeof useUserStore>) {
+    // 用户信息类型
+    interface UserInfoData {
+      userId?: number | null
+      username?: string
+      nickname?: string
+      email?: string
+      avatar?: string
+      giteeId?: string
+      roles?: string[]
+      permissions?: string[]
+    }
+
+    function setUserInfo(userInfo: UserInfoData) {
       if (userInfo.userId) userId.value = userInfo.userId
       if (userInfo.username) username.value = userInfo.username
       if (userInfo.nickname) nickname.value = userInfo.nickname
@@ -72,16 +99,6 @@ export const useUserStore = defineStore(
       if (userInfo.giteeId) giteeId.value = userInfo.giteeId
       if (userInfo.roles) roles.value = userInfo.roles
       if (userInfo.permissions) permissions.value = userInfo.permissions
-    }
-
-    function isTokenValid(): boolean {
-      if (!accessToken.value) return false
-      return tokenExpiresAt.value > Date.now()
-    }
-
-    function isRefreshTokenValid(): boolean {
-      if (!refreshToken.value) return false
-      return refreshTokenExpiresAt.value > Date.now()
     }
 
     async function login(credentials: LoginRequest): Promise<boolean> {
@@ -178,6 +195,25 @@ export const useUserStore = defineStore(
       return roles.value.includes(role) || roles.value.includes('admin')
     }
 
+    // 预览模式：初始化 mock 用户数据
+    function initPreviewMode() {
+      if (PREVIEW_MODE && !username.value) {
+        userId.value = 1
+        username.value = 'demo_user'
+        nickname.value = '演示用户'
+        email.value = 'demo@chainpass.io'
+        roles.value = ['user', 'admin']
+        permissions.value = ['*:*:*']
+        createdAt.value = '2024-01-01 00:00:00'
+        // 设置一个永不过期的 token
+        accessToken.value = 'preview_mode_token'
+        tokenExpiresAt.value = Date.now() + 365 * 24 * 60 * 60 * 1000 // 一年后过期
+      }
+    }
+
+    // 自动初始化预览模式
+    initPreviewMode()
+
     return {
       // State
       accessToken,
@@ -192,6 +228,7 @@ export const useUserStore = defineStore(
       giteeId,
       roles,
       permissions,
+      createdAt,
       // Getters
       isLoggedIn,
       userInitials,
@@ -227,6 +264,7 @@ export const useUserStore = defineStore(
         'giteeId',
         'roles',
         'permissions',
+        'createdAt',
       ],
     },
   }

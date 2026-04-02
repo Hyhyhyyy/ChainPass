@@ -4,8 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores'
 import {
   Odometer, Key, Postcard, Tickets, Wallet, Position,
-  Document, Shield, User, Setting, UserFilled, Avatar,
-  Lock, Connection, MenuFold, MenuExpand
+  Document, User, Setting, UserFilled, Avatar,
+  Lock, Connection, Fold, Expand
 } from '@element-plus/icons-vue'
 
 interface Props {
@@ -50,11 +50,11 @@ const menuItems = [
   },
   {
     path: '/compliance',
-    icon: 'Shield',
+    icon: 'Lock',
     title: '合规中心',
     color: '#10b981',
     children: [
-      { path: '/compliance/kyc', icon: 'Checked', title: 'KYC认证' },
+      { path: '/compliance/kyc', icon: 'CircleCheck', title: 'KYC认证' },
     ],
   },
   {
@@ -140,7 +140,7 @@ function navigateTo(path: string) {
     <!-- 折叠按钮 -->
     <div class="collapse-trigger" @click="appStore.toggleSidebar">
       <el-icon :size="20">
-        <component :is="collapsed ? MenuExpand : MenuFold" />
+        <component :is="collapsed ? Expand : Fold" />
       </el-icon>
     </div>
   </aside>
@@ -154,7 +154,7 @@ function navigateTo(path: string) {
   height: 100vh;
   background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
   border-right: none;
-  transition: width var(--transition-normal);
+  transition: width 0.3s ease;
   overflow: hidden;
   z-index: 100;
   display: flex;

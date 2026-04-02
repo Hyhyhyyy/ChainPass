@@ -177,10 +177,19 @@ const router = createRouter({
 // 白名单路由
 const whiteList = ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/zkp-verify', '/auth/oauth/callback', '/403']
 
+// 预览模式：设为 true 可直接访问所有页面（仅供开发预览）
+const PREVIEW_MODE = true
+
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
   // 设置页面标题
   document.title = `${to.meta.title || 'ChainPass'} - 区块链身份验证系统`
+
+  // 预览模式：直接放行所有页面
+  if (PREVIEW_MODE) {
+    next()
+    return
+  }
 
   const userStore = useUserStore()
 
@@ -200,15 +209,6 @@ router.beforeEach(async (to, from, next) => {
     next(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)
     return
   }
-
-  // TODO: 权限验证
-  // if (to.meta.permission) {
-  //   const hasPermission = await checkPermission(to.meta.permission as string)
-  //   if (!hasPermission) {
-  //     next('/403')
-  //     return
-  //   }
-  // }
 
   next()
 })

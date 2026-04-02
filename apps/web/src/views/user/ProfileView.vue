@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
-  User, Key, Shield, Tickets, Wallet,
+  User, Key, Lock, Tickets, Wallet,
   Edit, CopyDocument, CircleCheck, CircleClose,
   Calendar, Location, Phone, Message
 } from '@element-plus/icons-vue'
@@ -12,6 +12,10 @@ import { didApi } from '@/api/did'
 import { vcApi } from '@/api/vc'
 import { kycApi } from '@/api/kyc'
 import { paymentApi } from '@/api/payment'
+import { mockDID, mockKYCStatus, mockVCList, mockWallet, mockUser } from '@/mock/previewData'
+
+// 预览模式
+const PREVIEW_MODE = true
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -41,32 +45,48 @@ const validVCCount = computed(() => vcList.value.filter(v => v.status === 'VALID
 async function fetchUserData() {
   loading.value = true
   try {
-    // 初始化个人信息
-    profileForm.value.nickname = userStore.nickname || ''
-    profileForm.value.email = userStore.email || ''
+    if (PREVIEW_MODE) {
+      // 使用预览数据
+      profileForm.value.nickname = mockUser.nickname
+      profileForm.value.email = mockUser.email
+      didInfo.value = mockDID
+      kycInfo.value = mockKYCStatus
+      walletInfo.value = mockWallet
+      vcList.value = mockVCList.map(vc => ({
+        ...vc,
+        id: vc.id,
+        type: vc.type,
+        expiresAt: vc.expirationDate,
+        status: vc.status
+      }))
+    } else {
+      // 初始化个人信息
+      profileForm.value.nickname = userStore.nickname || ''
+      profileForm.value.email = userStore.email || ''
 
-    // 并行获取数据
-    const [didRes, kycRes, walletRes] = await Promise.all([
-      didApi.getMy(),
-      kycApi.getStatus(),
-      paymentApi.getWallet()
-    ])
+      // 并行获取数据
+      const [didRes, kycRes, walletRes] = await Promise.all([
+        didApi.getMy(),
+        kycApi.getStatus(),
+        paymentApi.getWallet()
+      ])
 
-    if (didRes.code === 200 && didRes.data) {
-      didInfo.value = didRes.data
-      // 获取VC列表（需要DID）
-      const vcRes = await vcApi.getList(didInfo.value.did)
-      if (vcRes.code === 200) {
-        vcList.value = vcRes.data || []
+      if (didRes.code === 200 && didRes.data) {
+        didInfo.value = didRes.data
+        // 获取VC列表（需要DID）
+        const vcRes = await vcApi.getList(didInfo.value.did)
+        if (vcRes.code === 200) {
+          vcList.value = vcRes.data || []
+        }
       }
-    }
 
-    if (kycRes.code === 200) {
-      kycInfo.value = kycRes.data
-    }
+      if (kycRes.code === 200) {
+        kycInfo.value = kycRes.data
+      }
 
-    if (walletRes.code === 200) {
-      walletInfo.value = walletRes.data
+      if (walletRes.code === 200) {
+        walletInfo.value = walletRes.data
+      }
     }
   } catch (error) {
     console.error('获取用户数据失败:', error)
@@ -235,7 +255,7 @@ onMounted(() => {
       <template #header>
         <div class="card-header">
           <span>
-            <el-icon><Shield /></el-icon>
+            <el-icon><Lock /></el-icon>
             KYC 身份认证
           </span>
           <el-button type="primary" link @click="goToKYC">
