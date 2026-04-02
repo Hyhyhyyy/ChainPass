@@ -1,0 +1,61 @@
+# 忽略依赖目录
+node_modules/
+.pnpm-store/
+
+# 忽略构建产物
+dist/
+target/
+*.jar
+*.war
+
+# 忽略IDE配置
+.idea/
+.vscode/
+*.iml
+
+# 忽略环境配置（包含敏感信息）
+.env
+.env.local
+.env.production
+.env.*.local
+
+# 忽略SSL证书（敏感）
+*.p12
+*.pem
+*.key
+keystore.*
+apps/server/src/main/resources/ssl/
+
+# 忽略密钥和证书
+*.jks
+*.keystore
+secrets/
+
+# 忽略日志
+logs/
+*.log
+
+# 忽略临时文件
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# 忽略测试覆盖率
+coverage/
+.nyc_output/
+
+# 忽略缓存
+.cache/
+.parcel-cache/
+
+# Maven
+.m2/
+
+# Gradle
+.gradle/
+build/
+
+# Java
+*.class
+hs_err_pid*

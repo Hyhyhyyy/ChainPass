@@ -1,0 +1,70 @@
+server:
+  port: ${SERVER_PORT:8080}
+  ssl:
+    enabled: ${SERVER_SSL_ENABLED:false}
+    key-store: ${SSL_KEY_STORE:classpath:ssl/keystore.p12}
+    key-store-password: ${SSL_KEY_STORE_PASSWORD:chainpass_ssl_password}
+    key-store-type: PKCS12
+    key-alias: chainpass
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # 数据源配置（生产环境）
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
+  # Redis配置（生产环境）
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+
+# ChainPass配置（生产环境）
+chainpass:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:900000}
+    refresh-token-ttl: ${JWT_REFRESH_TOKEN_TTL:604800000}
+  oauth2:
+    gitee:
+      client-id: ${GITEE_CLIENT_ID}
+      client-secret: ${GITEE_CLIENT_SECRET}
+      redirect-uri: ${GITEE_REDIRECT_URI}
+      state-secret: ${OAUTH_STATE_SECRET}
+
+# 安全配置
+security:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://your-domain.com}
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:100}
+
+# Actuator配置（生产环境）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+# 日志配置（生产环境）
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:WARN}
+    com.chainpass: ${LOG_LEVEL_APP:INFO}
+  file:
+    name: logs/chainpass.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: chainpass-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-chainpass_secure_password_change_this}
+      MYSQL_DATABASE: chainpass
+      MYSQL_USER: ${DB_USERNAME:-chainpass}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-chainpass_secure_password_change_this}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chainpass-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: chainpass-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-chainpass_redis_password}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-chainpass_redis_password}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chainpass-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  chainpass-network:
+    name: chainpass-network
+    driver: bridge

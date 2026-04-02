@@ -1,0 +1,10 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          explicit_to_json: true
+          field_rename: snake
+      retrofit_generator:
+        options:
+          generate_client_classes: true

@@ -1,0 +1,14 @@
+{
+  "name": "@chainpass/shared",
+  "version": "2.0.0",
+  "private": true,
+  "main": "./types/index.ts",
+  "types": "./types/index.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.ts",
+      "default": "./types/index.ts"
+    },
+    "./types": "./types/index.ts"
+  }
+}
