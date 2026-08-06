@@ -1,4 +1,52 @@
-# ChainPass - 基于区块链的跨境数字身份与合规支付解决方案
+<p align="center">
+  <img src="banner.svg" alt="ChainPass Blockchain Identity &amp; Payment" width="100%">
+</p>
+
+<div align="center">
+
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Java](https://img.shields.io/badge/Java-17-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.3-green)
+![Vue](https://img.shields.io/badge/Vue-3.5-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
+**W3C DID 标准 · 可验证凭证 · 跨境支付 · 合规认证**
+
+[🌐 在线演示](#) · [📖 API文档](docs/API_DOCUMENTATION.md) · [🚀 使用指南](docs/PROJECT_GUIDE.md) · [🏆 大创材料](docs/INNOVATION_PROJECT.md)
+
+</div>
+
+
+---
+
+
+## ✨ 核心特性
+
+| 特性 | 说明 |
+|------|------|
+| 🆔 **DID身份系统** | W3C标准去中心化身份，用户完全掌控数字身份 |
+| 📜 **可验证凭证VC** | 密码学证明的身份属性，一次认证多平台复用 |
+| 💳 **跨境支付** | 多币种钱包、实时汇率、合规风控 |
+| ✅ **KYC自动合规** | 身份认证通过后自动签发VC，无缝衔接 |
+| 🔐 **多元登录** | 账密、OAuth、零知识证明多种认证方式 |
+
+## 🛠 技术栈
+
+| 层面 | 技术 |
+|------|------|
+| Backend | Java 17 / Spring Boot 3.4 |
+| Frontend | Vue 3.5 / Vite / Pinia |
+| Database | MySQL 8.0 / Redis 7.0 |
+| Deploy | Docker Compose / Swagger UI |
+
+---
+
+
+## 📊 系统架构
+
+<p align="center">
+  <img src="diagrams/ChainPass.svg" alt="ChainPass System Architecture" width="90%">
+</p>
 
 <div align="center">
 
@@ -263,6 +311,14 @@ pnpm test
 MIT License
 
 Copyright (c) 2024 ChainPass Team
+
+---
+
+<div align="center">
+
+**Made with ❤️ by ChainPass Team**
+
+</div>
 
 ---
 

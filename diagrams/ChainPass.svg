@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 560">
+<defs>
+    <filter id="sh" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-opacity="0.10"/>
+    </filter>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+    <marker id="arr-dk" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#334155"/>
+    </marker>
+    <style>.t{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif} .lb{font-size:12px;fill:#475569;font-weight:600}</style>
+  </defs>
+<rect width="920" height="560" rx="16" fill="#f8fafc"/>
+<text x="460" y="38" text-anchor="middle" class="t" font-size="22" font-weight="800" fill="#0f172a">ChainPass 系统架构</text>
+<rect x="30" y="80" width="860" height="110" rx="12" fill="#e0f2fe" stroke="#cbd5e1" stroke-dasharray="6 4" opacity="0.6"/>
+<text x="42" y="98" class="lb">用户界面层</text>
+<rect x="217" y="116" width="150" height="46" rx="10" fill="#0ea5e9" stroke="#fff" stroke-width="1.5" filter="url(#sh)"/>
+<text x="292.0" y="145.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">Vue 3 Web App</text>
+<rect x="385" y="116" width="150" height="46" rx="10" fill="#0ea5e9" stroke="#fff" stroke-width="1.5" filter="url(#sh)"/>
+<text x="460.0" y="145.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">Mobile App (预留)</text>
+<rect x="553" y="116" width="150" height="46" rx="10" fill="#0ea5e9" stroke="#fff" stroke-width="1.5" filter="url(#sh)"/>
+<text x="628.0" y="145.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">开放 API</text>
+<line x1="292" y1="162" x2="292" y2="194" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="460" y1="162" x2="460" y2="194" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="628" y1="162" x2="628" y2="194" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="30" y="210" width="860" height="130" rx="12" fill="#fef3c7" stroke="#cbd5e1" stroke-dasharray="6 4" opacity="0.6"/>
+<text x="42" y="228" class="lb">服务层</text>
+<rect x="133" y="246" width="150" height="46" rx="10" fill="#d97706" stroke="#78350f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="208.0" y="275.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">DID 服务</text>
+<rect x="301" y="246" width="150" height="46" rx="10" fill="#d97706" stroke="#78350f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="376.0" y="275.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">VC 服务</text>
+<rect x="469" y="246" width="150" height="46" rx="10" fill="#d97706" stroke="#78350f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="544.0" y="275.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">支付服务</text>
+<rect x="637" y="246" width="150" height="46" rx="10" fill="#d97706" stroke="#78350f" stroke-width="1.5" filter="url(#sh)"/>
+<text x="712.0" y="275.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">KYC 服务</text>
+<line x1="208" y1="292" x2="208" y2="344" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="376" y1="292" x2="376" y2="344" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="544" y1="292" x2="544" y2="344" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+<line x1="712" y1="292" x2="712" y2="344" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="30" y="360" width="860" height="140" rx="12" fill="#dcfce7" stroke="#cbd5e1" stroke-dasharray="6 4" opacity="0.6"/>
+<text x="42" y="378" class="lb">数据层</text>
+<rect x="217" y="396" width="150" height="46" rx="10" fill="#059669" stroke="#fff" stroke-width="1.5" filter="url(#sh)"/>
+<text x="292.0" y="425.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">MySQL 8.0</text>
+<rect x="385" y="396" width="150" height="46" rx="10" fill="#059669" stroke="#fff" stroke-width="1.5" filter="url(#sh)"/>
+<text x="460.0" y="425.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">Redis 7.0</text>
+<rect x="553" y="396" width="150" height="46" rx="10" fill="#059669" stroke="#fff" stroke-width="1.5" filter="url(#sh)"/>
+<text x="628.0" y="425.0" text-anchor="middle" class="t" font-size="13" font-weight="700" fill="#fff">模拟区块链</text>
+</svg>

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 380" width="1280" height="380" role="img" aria-label="ChainPass">
+  <defs>
+    <linearGradient id="bg_ChainPass" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0.00" stop-color="#0b1220"/><stop offset="0.33" stop-color="#0f172a"/><stop offset="0.67" stop-color="#1e1b4b"/><stop offset="1.00" stop-color="#0c4a6e"/>
+    </linearGradient>
+    <linearGradient id="g_ChainPass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e0f2fe"/>
+      <stop offset="0.5" stop-color="#67e8f9"/>
+      <stop offset="1" stop-color="#a5b4fc"/>
+      <animate attributeName="x1" values="0;0.3;0" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="1;0.7;1" dur="8s" repeatCount="indefinite"/>
+    </linearGradient>
+    <filter id="blur_ChainPass" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="34"/>
+    </filter>
+    <clipPath id="clip_ChainPass"><rect x="0" y="0" width="1280" height="380" rx="18"/></clipPath>
+  </defs>
+  <g clip-path="url(#clip_ChainPass)">
+    <rect x="0" y="0" width="1280" height="380" fill="url(#bg_ChainPass)"/>
+    <g filter="url(#blur_ChainPass)">
+      
+  <circle cx="180" cy="120" r="150" fill="#22d3ee" opacity="0.30">
+    <animateTransform attributeName="transform" type="translate" values="0 0; 40 16.0; 0 0" dur="60s" begin="0.0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
+    <animate attributeName="opacity" values="0.18;0.42;0.18" dur="48.0s" begin="0.0s" repeatCount="indefinite"/>
+  </circle>
+
+  <circle cx="1080" cy="90" r="120" fill="#818cf8" opacity="0.30">
+    <animateTransform attributeName="transform" type="translate" values="0 0; -30 -12.0; 0 0" dur="70s" begin="1.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
+    <animate attributeName="opacity" values="0.18;0.42;0.18" dur="56.0s" begin="1.2s" repeatCount="indefinite"/>
+  </circle>
+
+  <circle cx="980" cy="300" r="170" fill="#34d399" opacity="0.30">
+    <animateTransform attributeName="transform" type="translate" values="0 0; 50 20.0; 0 0" dur="55s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
+    <animate attributeName="opacity" values="0.18;0.42;0.18" dur="44.0s" begin="0.6s" repeatCount="indefinite"/>
+  </circle>
+
+  <circle cx="320" cy="320" r="110" fill="#818cf8" opacity="0.30">
+    <animateTransform attributeName="transform" type="translate" values="0 0; -25 -10.0; 0 0" dur="65s" begin="2.0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
+    <animate attributeName="opacity" values="0.18;0.42;0.18" dur="52.0s" begin="2.0s" repeatCount="indefinite"/>
+  </circle>
+    </g>
+    
+  <g opacity="0.12">
+    <rect x="-300" y="150" width="300" height="3" fill="#22d3ee" transform="rotate(-18 0 150)">
+      <animateTransform attributeName="transform" type="translate" values="-200 0; 1700 0" dur="9s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-300" y="250" width="220" height="2" fill="#22d3ee" transform="rotate(-18 0 250)">
+      <animateTransform attributeName="transform" type="translate" values="-200 0; 1700 0" dur="13s" begin="2s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+    
+  <circle cx="320" cy="190" r="150" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity="0.18" stroke-dasharray="6 14">
+    <animateTransform attributeName="transform" type="rotate" from="0 320 190" to="360 320 190" dur="40s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="320" cy="190" r="110" fill="none" stroke="#22d3ee" stroke-width="1" opacity="0.12"/>
+    <g transform="translate(1040,190)"><polygon points="48.5,-28.0 48.5,28.0 0.0,56.0 -48.5,28.0 -48.5,-28.0 -0.0,-56.0" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.9"/><polygon points="32.0,-18.5 32.0,18.5 0.0,37.0 -32.0,18.5 -32.0,-18.5 -0.0,-37.0" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.6"/><polygon points="15.5,-9.0 15.5,9.0 0.0,17.9 -15.5,9.0 -15.5,-9.0 -0.0,-17.9" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.4"/>
+    <animateTransform attributeName="transform" type="rotate" from="0 1040 190" to="360 1040 190" dur="36s" repeatCount="indefinite"/>
+    <circle cx="1040" cy="190" r="6" fill="#22d3ee"><animate attributeName="r" values="6;9;6" dur="3s" repeatCount="indefinite"/></circle>
+  </g>
+    
+  <line x1="80" y1="250" x2="440" y2="250" stroke="url(#g_ChainPass)" stroke-width="4" stroke-linecap="round" stroke-dasharray="360" stroke-dashoffset="360">
+    <animate attributeName="stroke-dashoffset" values="360;0;0" keyTimes="0;0.55;1" dur="1.8s" fill="freeze"/>
+    <animate attributeName="opacity" values="0;1;1" keyTimes="0;0.2;1" dur="1.8s" fill="freeze"/>
+  </line>
+    
+  <text x="80" y="200" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="66" font-weight="800" fill="url(#g_ChainPass)" letter-spacing="-1">
+    <animateTransform attributeName="transform" type="translate" values="-40 12; 0 0; 0 0" keyTimes="0;0.5;1" dur="1.6s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1;0 0 1 1"/>
+    <animate attributeName="opacity" values="0;1;1" keyTimes="0;0.5;1" dur="1.6s" fill="freeze"/>
+    ChainPass
+  </text>
+  <text x="82" y="238" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="500" fill="#cbd5e1">
+    <animate attributeName="opacity" values="0;0;1" keyTimes="0;0.5;1" dur="1.8s" fill="freeze"/>
+    跨境数字身份 · 合规支付 · 区块链信任层
+  </text>
+    <text x="1240" y="356" text-anchor="end" font-family="'Segoe UI',Arial,sans-serif" font-size="14" fill="#cbd5e1" opacity="0.55">made with &#10084; by Hyhyhyyy</text>
+  </g>
+</svg>
