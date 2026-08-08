@@ -53,10 +53,8 @@
     <animateTransform attributeName="transform" type="rotate" from="0 320 190" to="360 320 190" dur="40s" repeatCount="indefinite"/>
   </circle>
   <circle cx="320" cy="190" r="110" fill="none" stroke="#22d3ee" stroke-width="1" opacity="0.12"/>
-    <g transform="translate(1040,190)"><polygon points="48.5,-28.0 48.5,28.0 0.0,56.0 -48.5,28.0 -48.5,-28.0 -0.0,-56.0" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.9"/><polygon points="32.0,-18.5 32.0,18.5 0.0,37.0 -32.0,18.5 -32.0,-18.5 -0.0,-37.0" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.6"/><polygon points="15.5,-9.0 15.5,9.0 0.0,17.9 -15.5,9.0 -15.5,-9.0 -0.0,-17.9" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.4"/>
-    <animateTransform attributeName="transform" type="rotate" from="0 1040 190" to="360 1040 190" dur="36s" repeatCount="indefinite"/>
-    <circle cx="1040" cy="190" r="6" fill="#22d3ee"><animate attributeName="r" values="6;9;6" dur="3s" repeatCount="indefinite"/></circle>
-  </g>
+    <g transform="translate(1040,190)"><g><polygon points="48.5,-28.0 48.5,28.0 0.0,56.0 -48.5,28.0 -48.5,-28.0 -0.0,-56.0" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.9"/><polygon points="32.0,-18.5 32.0,18.5 0.0,37.0 -32.0,18.5 -32.0,-18.5 -0.0,-37.0" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.6"/><polygon points="15.5,-9.0 15.5,9.0 0.0,17.9 -15.5,9.0 -15.5,-9.0 -0.0,-17.9" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.4"/><animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="36s" repeatCount="indefinite"/>
+    </g><circle cx="0" cy="0" r="6" fill="#22d3ee"><animate attributeName="r" values="6;9;6" dur="3s" repeatCount="indefinite"/></circle></g>
     
   <line x1="80" y1="250" x2="440" y2="250" stroke="url(#g_ChainPass)" stroke-width="4" stroke-linecap="round" stroke-dasharray="360" stroke-dashoffset="360">
     <animate attributeName="stroke-dashoffset" values="360;0;0" keyTimes="0;0.55;1" dur="1.8s" fill="freeze"/>
