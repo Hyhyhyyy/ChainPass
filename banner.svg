@@ -1,103 +1,54 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 380" width="1280" height="380" role="img" aria-label="ChainPass">
   <defs>
-    <linearGradient id="bg_ChainPass" x1="0" y1="0" x2="0.4" y2="1">
-      <stop offset="0.00" stop-color="#0b1220"/><stop offset="0.33" stop-color="#0f172a"/><stop offset="0.67" stop-color="#1e1b4b"/><stop offset="1.00" stop-color="#0c4a6e"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#0b1026"/>
+      <stop offset="0.5" stop-color="#141b3c"/>
+      <stop offset="1" stop-color="#0e2a3a"/>
     </linearGradient>
-    <linearGradient id="g_ChainPass" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#e0f2fe"/>
       <stop offset="0.5" stop-color="#67e8f9"/>
-      <stop offset="1" stop-color="#a5b4fc"/>
-      <animate attributeName="x1" values="0;0.3;0" dur="8s" repeatCount="indefinite"/>
-      <animate attributeName="x2" values="1;0.7;1" dur="8s" repeatCount="indefinite"/>
+      <stop offset="1" stop-color="#a78bfa"/>
     </linearGradient>
-    <filter id="blur_ChainPass" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="34"/>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#818cf8"/>
+    </linearGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16"/>
     </filter>
-    <clipPath id="clip_ChainPass"><rect x="0" y="0" width="1280" height="380" rx="18"/></clipPath>
-    <radialGradient id="glow_g_ChainPass" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#22d3ee" stop-opacity="0.5"/>
-      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
-    </radialGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <clipPath id="clip"><rect x="0" y="0" width="1280" height="380" rx="18"/></clipPath>
   </defs>
-  <g clip-path="url(#clip_ChainPass)">
-    <rect x="0" y="0" width="1280" height="380" fill="url(#bg_ChainPass)"/>
-    <g filter="url(#blur_ChainPass)">
+  <g clip-path="url(#clip)">
+    <rect x="0" y="0" width="1280" height="380" fill="url(#bg)"/>
+    <circle cx="158" cy="72" r="150" fill="#1e3a8a" opacity="0.5" filter="url(#soft)"/>
+    <circle cx="1150" cy="322" r="142" fill="#0e7490" opacity="0.42" filter="url(#soft)"/>
 
-  <circle cx="180" cy="120" r="150" fill="#22d3ee" opacity="0.30">
-    <animateTransform attributeName="transform" type="translate" values="0 0; 40 16.0; 0 0" dur="60s" begin="0.0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
-    <animate attributeName="opacity" values="0.18;0.42;0.18" dur="48.0s" begin="0.0s" repeatCount="indefinite"/>
-  </circle>
+    <text x="70" y="150" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="62" font-weight="800" fill="url(#title)">ChainPass</text>
+    <text x="72" y="192" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#cbd5e1">跨境数字身份 · 合规支付 · 区块链信任层</text>
 
-  <circle cx="1080" cy="90" r="120" fill="#818cf8" opacity="0.30">
-    <animateTransform attributeName="transform" type="translate" values="0 0; -30 -12.0; 0 0" dur="70s" begin="1.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
-    <animate attributeName="opacity" values="0.18;0.42;0.18" dur="56.0s" begin="1.2s" repeatCount="indefinite"/>
-  </circle>
+    <g font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="600">
+      <rect x="72" y="220" width="98" height="34" rx="17" fill="#0e2a3a" stroke="#22d3ee"/>
+      <text x="121" y="242" text-anchor="middle" fill="#67e8f9">区块链</text>
+      <rect x="180" y="220" width="78" height="34" rx="17" fill="#0e2a3a" stroke="#22d3ee"/>
+      <text x="219" y="242" text-anchor="middle" fill="#67e8f9">身份</text>
+      <rect x="268" y="220" width="78" height="34" rx="17" fill="#0e2a3a" stroke="#22d3ee"/>
+      <text x="307" y="242" text-anchor="middle" fill="#67e8f9">合规</text>
+    </g>
 
-  <circle cx="980" cy="300" r="170" fill="#34d399" opacity="0.30">
-    <animateTransform attributeName="transform" type="translate" values="0 0; 50 20.0; 0 0" dur="55s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
-    <animate attributeName="opacity" values="0.18;0.42;0.18" dur="44.0s" begin="0.6s" repeatCount="indefinite"/>
-  </circle>
-
-  <circle cx="320" cy="320" r="110" fill="#818cf8" opacity="0.30">
-    <animateTransform attributeName="transform" type="translate" values="0 0; -25 -10.0; 0 0" dur="65s" begin="2.0s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1"/>
-    <animate attributeName="opacity" values="0.18;0.42;0.18" dur="52.0s" begin="2.0s" repeatCount="indefinite"/>
-  </circle>
-</g>
-    
-  <circle cx="320" cy="190" r="150" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity="0.18" stroke-dasharray="6 14">
-    <animateTransform attributeName="transform" type="rotate" from="0 320 190" to="360 320 190" dur="40s" repeatCount="indefinite"/>
-  </circle>
-  <circle cx="320" cy="190" r="110" fill="none" stroke="#22d3ee" stroke-width="1" opacity="0.12"/>
-
-  <g opacity="0.12">
-    <rect x="-300" y="150" width="300" height="3" fill="#22d3ee" transform="rotate(-18 0 150)">
-      <animateTransform attributeName="transform" type="translate" values="-200 0; 1700 0" dur="9s" repeatCount="indefinite"/>
-    </rect>
-    <rect x="-300" y="250" width="220" height="2" fill="#22d3ee" transform="rotate(-18 0 250)">
-      <animateTransform attributeName="transform" type="translate" values="-200 0; 1700 0" dur="13s" begin="2s" repeatCount="indefinite"/>
-    </rect>
-  </g>
-    
-  <path d="M56 24 L24 24 L24 56" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" stroke-dasharray="220" stroke-dashoffset="220"><animate attributeName="stroke-dashoffset" values="220;0" dur="1.2s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1" keyTimes="0;1"/></path>
-  <path d="M1224 24 L1256 24 L1256 56" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" stroke-dasharray="220" stroke-dashoffset="220"><animate attributeName="stroke-dashoffset" values="220;0" dur="1.2s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1" keyTimes="0;1"/></path>
-  <path d="M56 356 L24 356 L24 324" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" stroke-dasharray="220" stroke-dashoffset="220"><animate attributeName="stroke-dashoffset" values="220;0" dur="1.2s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1" keyTimes="0;1"/></path>
-  <path d="M1224 356 L1256 356 L1256 324" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" stroke-dasharray="220" stroke-dashoffset="220"><animate attributeName="stroke-dashoffset" values="220;0" dur="1.2s" fill="freeze" calcMode="spline" keySplines="0.2 0.8 0.2 1" keyTimes="0;1"/></path>
-  <circle cx="320" cy="190" r="172" fill="url(#glow_g_ChainPass)"><animate attributeName="opacity" values="0.35;0.85;0.35" dur="3.4s" repeatCount="indefinite"/></circle>
-    <g transform="translate(1040,190)"><g><polygon points="48.5,-28.0 48.5,28.0 0.0,56.0 -48.5,28.0 -48.5,-28.0 -0.0,-56.0" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.9"/><polygon points="32.0,-18.5 32.0,18.5 0.0,37.0 -32.0,18.5 -32.0,-18.5 -0.0,-37.0" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.6"/><polygon points="15.5,-9.0 15.5,9.0 0.0,17.9 -15.5,9.0 -15.5,-9.0 -0.0,-17.9" fill="none" stroke="#22d3ee" stroke-width="3" opacity="0.4"/><animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="36s" repeatCount="indefinite"/>
-    </g><circle cx="0" cy="0" r="6" fill="#22d3ee"><animate attributeName="r" values="6;9;6" dur="3s" repeatCount="indefinite"/></circle></g>
-    
-  <line x1="80" y1="250" x2="440" y2="250" stroke="url(#g_ChainPass)" stroke-width="4" stroke-linecap="round" stroke-dasharray="360" stroke-dashoffset="360">
-    <animate attributeName="stroke-dashoffset" values="360;0;0" keyTimes="0;0.55;1" dur="1.8s" fill="freeze"/>
-    <animate attributeName="opacity" values="0;1;1" keyTimes="0;0.2;1" dur="1.8s" fill="freeze"/>
-  </line>
-    
-  <text x="80" y="200" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="66" font-weight="800" fill="url(#g_ChainPass)" letter-spacing="-1">
-    <animateTransform attributeName="transform" type="translate" values="-40 12; 0 0; 0 0" keyTimes="0;0.5;1" dur="1.6s" fill="freeze" calcMode="spline" keySplines="0.34 1.56 0.64 1;0 0 1 1"/>
-    <animate attributeName="opacity" values="0;1;1" keyTimes="0;0.5;1" dur="1.6s" fill="freeze"/>
-    ChainPass
-  </text>
-  <text x="82" y="238" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="500" fill="#cbd5e1">
-    <animate attributeName="opacity" values="0;0;1" keyTimes="0;0.5;1" dur="1.8s" fill="freeze"/>
-    跨境数字身份 · 合规支付 · 区块链信任层
-  </text>
-      <g transform="translate(80,280)" opacity="0">
-    <rect x="0" y="0" width="49" height="28" rx="14" fill="#a5b4fc" fill-opacity="0.14" stroke="#22d3ee" stroke-opacity="0.55" stroke-width="1"/>
-    <text x="24" y="19" text-anchor="middle" font-family="monospace" font-size="14" fill="#cbd5e1">区块链</text>
-    <animate attributeName="opacity" values="0;1" begin="0.95s" dur="0.5s" fill="freeze"/>
-    <animateTransform attributeName="transform" type="translate" values="80 292; 80 280" begin="0.95s" dur="0.55s" fill="freeze" calcMode="spline" keySplines="0.34 1.56 0.64 1;0 0 1 1" keyTimes="0;1"/>
-  </g>
-  <g transform="translate(141,280)" opacity="0">
-    <rect x="0" y="0" width="40" height="28" rx="14" fill="#a5b4fc" fill-opacity="0.14" stroke="#22d3ee" stroke-opacity="0.55" stroke-width="1"/>
-    <text x="20" y="19" text-anchor="middle" font-family="monospace" font-size="14" fill="#cbd5e1">身份</text>
-    <animate attributeName="opacity" values="0;1" begin="1.11s" dur="0.5s" fill="freeze"/>
-    <animateTransform attributeName="transform" type="translate" values="141 292; 141 280" begin="1.11s" dur="0.55s" fill="freeze" calcMode="spline" keySplines="0.34 1.56 0.64 1;0 0 1 1" keyTimes="0;1"/>
-  </g>
-  <g transform="translate(193,280)" opacity="0">
-    <rect x="0" y="0" width="40" height="28" rx="14" fill="#a5b4fc" fill-opacity="0.14" stroke="#22d3ee" stroke-opacity="0.55" stroke-width="1"/>
-    <text x="20" y="19" text-anchor="middle" font-family="monospace" font-size="14" fill="#cbd5e1">合规</text>
-    <animate attributeName="opacity" values="0;1" begin="1.27s" dur="0.5s" fill="freeze"/>
-    <animateTransform attributeName="transform" type="translate" values="193 292; 193 280" begin="1.27s" dur="0.55s" fill="freeze" calcMode="spline" keySplines="0.34 1.56 0.64 1;0 0 1 1" keyTimes="0;1"/>
-  </g>
-    <text x="1240" y="356" text-anchor="end" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" fill="#cbd5e1" opacity="0.55">made with &#10084; by Hyhyhyyy</text>
+    <g transform="translate(1000,195)">
+      <ellipse cx="-72" cy="6" rx="48" ry="32" fill="none" stroke="url(#metal)" stroke-width="14" transform="rotate(-22 -72 6)"/>
+      <ellipse cx="0" cy="-10" rx="48" ry="32" fill="none" stroke="#a78bfa" stroke-width="14" transform="rotate(20 0 -10)"/>
+      <ellipse cx="72" cy="6" rx="48" ry="32" fill="none" stroke="url(#metal)" stroke-width="14" transform="rotate(-22 72 6)"/>
+      <path d="M -16 -10 L -4 -2 L 18 -22" fill="none" stroke="#fbbf24" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="60" stroke-dashoffset="60">
+        <animate attributeName="stroke-dashoffset" values="60;0" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <circle r="7" fill="#fde68a" filter="url(#glow)">
+        <animateMotion dur="3.4s" repeatCount="indefinite" rotate="auto" path="M -72 6 Q -36 -42 0 -10 Q 36 32 72 6"/>
+      </circle>
+    </g>
   </g>
 </svg>
