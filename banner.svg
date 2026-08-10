@@ -1,54 +1,147 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 380" width="1280" height="380" role="img" aria-label="ChainPass">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 380" width="1280" height="380" role="img" aria-label="ChainPass — 区块链跨境数字身份与合规支付">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0.3" y2="1">
-      <stop offset="0" stop-color="#0b1026"/>
-      <stop offset="0.5" stop-color="#141b3c"/>
-      <stop offset="1" stop-color="#0e2a3a"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0f24"/>
+      <stop offset="0.5" stop-color="#141d44"/>
+      <stop offset="1" stop-color="#0c1730"/>
     </linearGradient>
-    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#e0f2fe"/>
-      <stop offset="0.5" stop-color="#67e8f9"/>
-      <stop offset="1" stop-color="#a78bfa"/>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#f5c451"/>
     </linearGradient>
-    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#818cf8"/>
+    <linearGradient id="tealGold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#f5c451"/>
     </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#bfe9ff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c2c52"/>
+      <stop offset="1" stop-color="#243a66"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#5eead4" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#5eead4" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="node" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </radialGradient>
     <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="16"/>
+      <feGaussianBlur stdDeviation="7"/>
     </filter>
-    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
-      <feGaussianBlur stdDeviation="4"/>
-    </filter>
-    <clipPath id="clip"><rect x="0" y="0" width="1280" height="380" rx="18"/></clipPath>
   </defs>
-  <g clip-path="url(#clip)">
-    <rect x="0" y="0" width="1280" height="380" fill="url(#bg)"/>
-    <circle cx="158" cy="72" r="150" fill="#1e3a8a" opacity="0.5" filter="url(#soft)"/>
-    <circle cx="1150" cy="322" r="142" fill="#0e7490" opacity="0.42" filter="url(#soft)"/>
 
-    <text x="70" y="150" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="62" font-weight="800" fill="url(#title)">ChainPass</text>
-    <text x="72" y="192" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="22" font-weight="500" fill="#cbd5e1">跨境数字身份 · 合规支付 · 区块链信任层</text>
+  <!-- background -->
+  <rect x="0" y="0" width="1280" height="380" fill="url(#bg)"/>
+  <circle cx="240" cy="300" r="120" fill="#1e3a8a" opacity="0.25" filter="url(#soft)"/>
+  <circle cx="1120" cy="70" r="140" fill="#0e7490" opacity="0.18" filter="url(#soft)"/>
 
-    <g font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="600">
-      <rect x="72" y="220" width="98" height="34" rx="17" fill="#0e2a3a" stroke="#22d3ee"/>
-      <text x="121" y="242" text-anchor="middle" fill="#67e8f9">区块链</text>
-      <rect x="180" y="220" width="78" height="34" rx="17" fill="#0e2a3a" stroke="#22d3ee"/>
-      <text x="219" y="242" text-anchor="middle" fill="#67e8f9">身份</text>
-      <rect x="268" y="220" width="78" height="34" rx="17" fill="#0e2a3a" stroke="#22d3ee"/>
-      <text x="307" y="242" text-anchor="middle" fill="#67e8f9">合规</text>
+  <!-- (a) BANNER-WIDE MOTION: a light beam sweeping across the entire 1280px width -->
+  <rect x="0" y="0" width="150" height="380" fill="url(#beam)" opacity="0">
+    <animate attributeName="x" values="-170;1450;-170" dur="7.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;0.45;0" dur="7.5s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- LEFT COLUMN: title + (b) TITLE-SURROUND MOTION -->
+  <!-- halo pulse behind the title -->
+  <circle cx="215" cy="120" r="62" fill="url(#halo)">
+    <animate attributeName="r" values="54;74;54" dur="4.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.10;0.28;0.10" dur="4.5s" repeatCount="indefinite"/>
+  </circle>
+  <!-- orbiting accent dots around the title -->
+  <g transform="translate(215,120)">
+    <g>
+      <circle cx="0" cy="-80" r="4.5" fill="#5eead4"/>
+      <circle cx="0" cy="80" r="3.5" fill="#f5c451"/>
+      <circle cx="80" cy="0" r="3" fill="#7dd3fc"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="11s" repeatCount="indefinite"/>
+    </g>
+  </g>
+
+  <text x="64" y="150" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="60" font-weight="800" fill="url(#titleGrad)">ChainPass</text>
+  <!-- underline that draws in under the title -->
+  <line x1="66" y1="168" x2="372" y2="168" stroke="url(#tealGold)" stroke-width="4" stroke-linecap="round" stroke-dasharray="306" stroke-dashoffset="306">
+    <animate attributeName="stroke-dashoffset" values="306;0;0;306" dur="5s" repeatCount="indefinite"/>
+  </line>
+  <text x="66" y="196" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="20" fill="#9fb3d1">区块链数字身份 · 跨境合规支付</text>
+
+  <!-- tag pills -->
+  <g font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#cfe9ff">
+    <rect x="66" y="214" width="96" height="28" rx="14" fill="#0e7490" fill-opacity="0.35" stroke="#5eead4" stroke-opacity="0.5"/>
+    <text x="114" y="232" text-anchor="middle">W3C DID</text>
+    <rect x="172" y="214" width="118" height="28" rx="14" fill="#7c2d12" fill-opacity="0.35" stroke="#f5c451" stroke-opacity="0.5"/>
+    <text x="231" y="232" text-anchor="middle">可验证凭证</text>
+    <rect x="300" y="214" width="100" height="28" rx="14" fill="#1e3a8a" fill-opacity="0.4" stroke="#7dd3fc" stroke-opacity="0.5"/>
+    <text x="350" y="232" text-anchor="middle">跨境支付</text>
+  </g>
+
+  <!-- RIGHT HERO MOTIF: a self-sovereign verifiable-credential card flowing through a
+       decentralized identity (DID) network and across a border into cross-border payment -->
+  <g transform="translate(980,180)">
+    <!-- decentralized identity network: satellite nodes + connectors from the card -->
+    <g stroke="#5eead4" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="4 5">
+      <line x1="0" y1="0" x2="-160" y2="-85"/>
+      <line x1="0" y1="0" x2="165" y2="-80"/>
+      <line x1="0" y1="0" x2="-150" y2="95"/>
+      <line x1="0" y1="0" x2="160" y2="95"/>
+    </g>
+    <g fill="url(#node)">
+      <circle cx="-160" cy="-85" r="10"><animate attributeName="r" values="9;12;9" dur="3.4s" repeatCount="indefinite"/></circle>
+      <circle cx="165" cy="-80" r="9"><animate attributeName="r" values="8;11;8" dur="3.8s" repeatCount="indefinite"/></circle>
+      <circle cx="-150" cy="95" r="9"><animate attributeName="r" values="8;11;8" dur="3.1s" repeatCount="indefinite"/></circle>
+      <circle cx="160" cy="95" r="10"><animate attributeName="r" values="9;12;9" dur="3.6s" repeatCount="indefinite"/></circle>
     </g>
 
-    <g transform="translate(1000,195)">
-      <ellipse cx="-72" cy="6" rx="48" ry="32" fill="none" stroke="url(#metal)" stroke-width="14" transform="rotate(-22 -72 6)"/>
-      <ellipse cx="0" cy="-10" rx="48" ry="32" fill="none" stroke="#a78bfa" stroke-width="14" transform="rotate(20 0 -10)"/>
-      <ellipse cx="72" cy="6" rx="48" ry="32" fill="none" stroke="url(#metal)" stroke-width="14" transform="rotate(-22 72 6)"/>
-      <path d="M -16 -10 L -4 -2 L 18 -22" fill="none" stroke="#fbbf24" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="60" stroke-dashoffset="60">
-        <animate attributeName="stroke-dashoffset" values="60;0" dur="2s" repeatCount="indefinite"/>
-      </path>
-      <circle r="7" fill="#fde68a" filter="url(#glow)">
-        <animateMotion dur="3.4s" repeatCount="indefinite" rotate="auto" path="M -72 6 Q -36 -42 0 -10 Q 36 32 72 6"/>
-      </circle>
+    <!-- the verifiable-credential "pass" card (gentle bob) -->
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 6;0 0" dur="5s" repeatCount="indefinite"/>
+      <rect x="-75" y="-95" width="150" height="190" rx="14" fill="url(#cardGrad)" stroke="#5eead4" stroke-opacity="0.7" stroke-width="2"/>
+      <!-- DID chip -->
+      <rect x="-62" y="-80" width="26" height="20" rx="4" fill="#f5c451"/>
+      <!-- avatar -->
+      <circle cx="-25" cy="-52" r="16" fill="#0a0f24" stroke="#5eead4" stroke-width="2"/>
+      <circle cx="-25" cy="-58" r="6" fill="#5eead4"/>
+      <path d="M-37 -42 Q-25 -30 -13 -42" fill="none" stroke="#5eead4" stroke-width="2"/>
+      <!-- verified / KYC seal -->
+      <g>
+        <circle cx="52" cy="-30" r="18" fill="none" stroke="#f5c451" stroke-width="3">
+          <animate attributeName="r" values="18;20.5;18" dur="2.6s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.7;1;0.7" dur="2.6s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M44 -30 L50 -24 L61 -35" fill="none" stroke="#f5c451" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <!-- DID string -->
+      <text x="-62" y="38" font-family="Consolas, monospace" font-size="11" fill="#9fb3d1">did:cp:7f3a9c</text>
+      <!-- ZKP / crypto lock -->
+      <g transform="translate(-25,62)">
+        <rect x="-11" y="-4" width="22" height="17" rx="3" fill="#1e293b" stroke="#7dd3fc" stroke-width="2"/>
+        <path d="M-7 -4 V-9 A7 7 0 0 1 7 -9 V-4" fill="none" stroke="#7dd3fc" stroke-width="2"/>
+        <circle cx="0" cy="4" r="3" fill="#7dd3fc"/>
+      </g>
+    </g>
+
+    <!-- cross-border payment stream: multi-currency coins crossing a border line -->
+    <line x1="210" y1="-100" x2="210" y2="100" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.5" stroke-dasharray="3 7"/>
+    <g font-family="Segoe UI, Arial, sans-serif" font-size="12" font-weight="700">
+      <g fill="#5eead4">
+        <circle cx="0" cy="0" r="11" fill="#0a0f24" stroke="#5eead4" stroke-width="2"/>
+        <text x="0" y="4" text-anchor="middle" fill="#5eead4">¥</text>
+        <animateMotion dur="4.8s" repeatCount="indefinite" path="M75,0 C140,-30 200,-30 210,0 C200,30 140,30 75,0 Z"/>
+      </g>
+      <g>
+        <circle cx="0" cy="0" r="11" fill="#0a0f24" stroke="#f5c451" stroke-width="2"/>
+        <text x="0" y="4" text-anchor="middle" fill="#f5c451">$</text>
+        <animateMotion dur="4.8s" begin="1.6s" repeatCount="indefinite" path="M75,0 C140,-30 200,-30 210,0 C200,30 140,30 75,0 Z"/>
+      </g>
+      <g>
+        <circle cx="0" cy="0" r="11" fill="#0a0f24" stroke="#7dd3fc" stroke-width="2"/>
+        <text x="0" y="4" text-anchor="middle" fill="#7dd3fc">€</text>
+        <animateMotion dur="4.8s" begin="3.2s" repeatCount="indefinite" path="M75,0 C140,-30 200,-30 210,0 C200,30 140,30 75,0 Z"/>
+      </g>
     </g>
   </g>
 </svg>
