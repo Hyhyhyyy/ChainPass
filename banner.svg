@@ -36,9 +36,6 @@
       <animateTransform attributeName="transform" type="rotate" values="-10 0 0;10 0 0;-10 0 0" dur="3.4s" repeatCount="indefinite"/>
       <circle cx="0" cy="-62" r="44" fill="url(#body)" stroke="#f5c451" stroke-width="11"/>
       <circle cx="0" cy="-62" r="20" fill="#0a0f24"/>
-      <circle cx="-14" cy="-66" r="6" fill="#0a0f24"/>
-      <circle cx="14" cy="-66" r="6" fill="#0a0f24"/>
-      <path d="M-15,-48 Q0,-36 15,-48" fill="none" stroke="#0a0f24" stroke-width="6" stroke-linecap="round"/>
       <rect x="-10" y="-18" width="20" height="124" rx="10" fill="url(#body)" stroke="#5eead4" stroke-width="9"/>
       <rect x="10" y="58" width="28" height="13" rx="5" fill="#f5c451" stroke="#5eead4" stroke-width="5"/>
       <rect x="10" y="82" width="21" height="13" rx="5" fill="#f5c451" stroke="#5eead4" stroke-width="5"/>
