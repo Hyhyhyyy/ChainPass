@@ -32,7 +32,7 @@ withDefaults(defineProps<{
   width: min(100%, 220px);
   aspect-ratio: 1;
   border: 1px solid rgba(14, 165, 233, 0.18);
-  border-radius: 24px;
+  border-radius: 14px;
   box-shadow: 0 18px 45px rgba(8, 145, 178, 0.16);
 }
 

@@ -85,6 +85,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/compliance/PaymentReviewView.vue'),
         meta: { title: '跨境支付复核', requiresAuth: true, permission: 'compliance:payment:audit' },
       },
+      {
+        path: 'competition/readiness',
+        name: 'CompetitionReadiness',
+        component: () => import('@/views/competition/ReadinessView.vue'),
+        meta: { title: '参赛合规自检', requiresAuth: true },
+      },
       // 用户中心
       {
         path: 'user/profile',

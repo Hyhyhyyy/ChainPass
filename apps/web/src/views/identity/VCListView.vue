@@ -349,7 +349,7 @@ onMounted(() => {
 
 .vc-card {
   border-radius: 12px;
-  transition: all 0.3s;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out;
 }
 
 .vc-card.is-expired {

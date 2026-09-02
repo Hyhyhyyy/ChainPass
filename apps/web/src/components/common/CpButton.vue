@@ -57,7 +57,7 @@ const buttonClass = computed(() => [
   border-radius: var(--radius-md);
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out, background-color 300ms ease-out;
 }
 
 .cp-button:disabled {
@@ -85,10 +85,17 @@ const buttonClass = computed(() => [
 .cp-button--primary {
   background-color: var(--color-primary);
   color: white;
+  box-shadow: 0 2px 5px rgba(99, 91, 255, .4), inset 0 1px 0 rgba(255, 255, 255, .2);
 }
 
 .cp-button--primary:hover:not(:disabled) {
   background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+.cp-button:active:not(:disabled) {
+  transform: scale(.98) translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .2);
 }
 
 .cp-button--success {

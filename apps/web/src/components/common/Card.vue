@@ -55,13 +55,13 @@ const props = withDefaults(defineProps<Props>(), {
 
 .card.hoverable {
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: transform 400ms ease-out, box-shadow 400ms ease-out, border-color 400ms ease-out;
 }
 
 .card.hoverable:hover {
   border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
+  transform: translateY(-4px);
 }
 
 .card-icon {

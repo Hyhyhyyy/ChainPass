@@ -321,8 +321,8 @@ onMounted(() => {
 
 /* 页面标题 */
 .page-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
+  background: #0a2540;
+  border-radius: 16px;
   padding: 32px;
   color: white;
 }
@@ -352,7 +352,7 @@ onMounted(() => {
   align-items: center;
   padding: 60px 40px;
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
@@ -366,7 +366,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #635bff;
   border-radius: 50%;
   color: white;
   box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
@@ -411,7 +411,7 @@ onMounted(() => {
 /* 状态卡片 */
 .status-card {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -428,7 +428,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20px;
+  border-radius: 12px;
   color: white;
 }
 
@@ -637,7 +637,7 @@ onMounted(() => {
 /* 说明区域 */
 .info-section {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
 }
 
@@ -669,7 +669,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #635bff;
   border-radius: 12px;
   color: white;
   font-size: 20px;

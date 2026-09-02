@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<Props>(), {
 }
 
 .skeleton-row.animated {
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  animation: skeleton-pulse 1.5s ease-out infinite;
 }
 
 @keyframes skeleton-pulse {

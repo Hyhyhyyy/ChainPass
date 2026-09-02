@@ -6,7 +6,7 @@ import {
   User, Key, Wallet, Lock, Tickets, Position,
   CircleCheck, CircleClose, Loading, Document,
   ArrowUp, ArrowDown, Plus, Refresh, Right,
-  QuestionFilled, Star, Timer
+  QuestionFilled, Star, Timer, DocumentChecked
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
 import { didApi } from '@/api/did'
@@ -204,6 +204,15 @@ onMounted(() => {
           stroke-linecap="round"
         />
       </div>
+    </div>
+
+    <div class="competition-banner" @click="router.push('/competition/readiness')">
+      <div class="competition-icon"><el-icon><DocumentChecked /></el-icon></div>
+      <div>
+        <strong>中国国际大学生创新大赛（2026）申报自检</strong>
+        <p>核验参赛资格、成员贡献、知识产权、证据真实性和材料原创性，导出可追溯自检记录。</p>
+      </div>
+      <el-button type="primary">开始自检 <el-icon><Right /></el-icon></el-button>
     </div>
 
     <!-- 新手引导卡片 -->
@@ -517,10 +526,14 @@ onMounted(() => {
 
 /* 欢迎区域 */
 .welcome-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
+  background: #0a2540;
+  background-image: linear-gradient(to right, rgba(128, 233, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128, 233, 255, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+  border-radius: 16px;
   padding: 32px;
   color: white;
+  box-shadow: 0 4px 8px rgba(10, 37, 64, .14), 0 16px 32px rgba(10, 37, 64, .12);
 }
 
 .welcome-content {
@@ -542,8 +555,8 @@ onMounted(() => {
 }
 
 .welcome-actions .el-button {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: #635bff;
+  border-color: #635bff;
   color: white;
 }
 
@@ -564,12 +577,49 @@ onMounted(() => {
   font-weight: 600;
 }
 
+.competition-banner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 22px 24px;
+  color: #0a2540;
+  background-color: #ffffff;
+  background-image: linear-gradient(to right, rgba(99, 91, 255, .07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 91, 255, .07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  border: 1px solid rgba(99, 91, 255, .2);
+  border-radius: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .04), 0 8px 16px rgba(0, 0, 0, .08);
+  cursor: pointer;
+  transition: transform 400ms ease-out, box-shadow 400ms ease-out;
+}
+
+.competition-banner:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(10, 37, 64, .08);
+}
+
+.competition-banner strong { display: block; margin-bottom: 5px; font-size: 17px; }
+.competition-banner p { color: #526579; font-size: 13px; line-height: 1.55; }
+.competition-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: #ffffff;
+  background: #635bff;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(99, 91, 255, .4), inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+
 /* 新手引导 */
 .guide-section {
   background: white;
-  border-radius: 20px;
+  border-radius: 14px;
   padding: 28px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e6ebf1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .04), 0 8px 16px rgba(0, 0, 0, .08);
 }
 
 .guide-header {
@@ -605,15 +655,15 @@ onMounted(() => {
   display: flex;
   gap: 16px;
   padding: 20px;
-  border-radius: 16px;
-  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  border: 1px solid #dfe6ee;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 300ms ease-out, border-color 300ms ease-out, box-shadow 300ms ease-out;
 }
 
 .guide-step.current {
-  border-color: #667eea;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-color: #635bff;
+  background: #f7f5ff;
 }
 
 .guide-step.completed {
@@ -645,7 +695,7 @@ onMounted(() => {
 }
 
 .guide-step.current .step-number {
-  background: #667eea;
+  background: #635bff;
   color: white;
 }
 
@@ -665,7 +715,7 @@ onMounted(() => {
   background: #f1f5f9;
   border-radius: 12px;
   font-size: 24px;
-  color: #667eea;
+  color: #635bff;
 }
 
 .step-info h3 {
@@ -681,7 +731,7 @@ onMounted(() => {
 }
 
 .step-arrow {
-  color: #667eea;
+  color: #635bff;
 }
 
 /* 核心功能卡片 */
@@ -701,22 +751,30 @@ onMounted(() => {
   .core-features {
     grid-template-columns: 1fr;
   }
+
+  .competition-banner {
+    grid-template-columns: auto 1fr;
+  }
+
+  .competition-banner .el-button {
+    grid-column: 1 / -1;
+  }
 }
 
 .feature-card {
   background: white;
-  border-radius: 20px;
+  border-radius: 14px;
   padding: 24px;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid transparent;
+  transition: transform 400ms ease-out, box-shadow 400ms ease-out, border-color 400ms ease-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .04), 0 8px 16px rgba(0, 0, 0, .08);
+  border: 1px solid #e6ebf1;
 }
 
 .feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-  border-color: #667eea;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
+  border-color: rgba(99, 91, 255, .48);
 }
 
 .feature-header {
@@ -732,25 +790,25 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
+  border-radius: 12px;
   font-size: 24px;
   color: white;
 }
 
 .feature-icon.did {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #635bff;
 }
 
 .feature-icon.kyc {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: #147d64;
 }
 
 .feature-icon.wallet {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: #a85d16;
 }
 
 .feature-icon.vc {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: #5147e5;
 }
 
 .feature-card h3 {
@@ -855,15 +913,16 @@ onMounted(() => {
   gap: 16px;
   padding: 20px;
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e6ebf1;
+  transition: transform 400ms ease-out, box-shadow 400ms ease-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .04), 0 8px 16px rgba(0, 0, 0, .08);
 }
 
 .action-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
 }
 
 .action-icon {
@@ -911,7 +970,7 @@ onMounted(() => {
 /* 最近交易 */
 .transactions-section {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -994,7 +1053,7 @@ onMounted(() => {
 /* 产品介绍 */
 .product-intro {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 40px;
   color: white;
 }
@@ -1060,8 +1119,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 24px;
+  background: #635bff;
+  border-radius: 16px;
   color: white;
   margin: 0 auto 20px;
 }

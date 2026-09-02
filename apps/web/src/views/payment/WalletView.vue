@@ -303,7 +303,7 @@ onMounted(() => {
 /* 页面标题 */
 .page-header {
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 32px;
   color: white;
 }
@@ -329,7 +329,7 @@ onMounted(() => {
 /* 钱包主体 */
 .wallet-main {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -479,7 +479,7 @@ onMounted(() => {
   background: #f8fafc;
   border-radius: 16px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out;
 }
 
 .action-item:hover {
@@ -546,7 +546,7 @@ onMounted(() => {
 /* 交易记录 */
 .transactions-section {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -645,7 +645,7 @@ onMounted(() => {
 /* 功能说明 */
 .features-section {
   background: #f8fafc;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
 }
 

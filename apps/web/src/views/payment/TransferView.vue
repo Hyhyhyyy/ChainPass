@@ -569,7 +569,7 @@ function getFlag(currency: string) {
 /* 页面标题 */
 .page-header {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 32px;
   color: white;
   display: flex;
@@ -609,7 +609,7 @@ function getFlag(currency: string) {
   font-size: 14px;
   background: rgba(255, 255, 255, 0.2);
   padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 /* 表单容器 */
@@ -627,7 +627,7 @@ function getFlag(currency: string) {
 
 .form-section {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }

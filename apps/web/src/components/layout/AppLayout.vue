@@ -45,14 +45,14 @@ const sidebarWidth = computed(() => (appStore.sidebarCollapsed ? '64px' : '240px
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f3f4f6;
+  background-color: #f6f9fc;
 }
 
 .main-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 300ms ease-out;
   min-height: 100vh;
 }
 
@@ -60,7 +60,10 @@ const sidebarWidth = computed(() => (appStore.sidebarCollapsed ? '64px' : '240px
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  background-color: #f3f4f6;
+  background-color: #f6f9fc;
+  background-image: linear-gradient(to right, rgba(99, 91, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 91, 255, 0.055) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 .footer {
@@ -74,7 +77,7 @@ const sidebarWidth = computed(() => (appStore.sidebarCollapsed ? '64px' : '240px
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all var(--transition-normal);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
 }
 
 .fade-slide-enter-from {
@@ -85,5 +88,9 @@ const sidebarWidth = computed(() => (appStore.sidebarCollapsed ? '64px' : '240px
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateX(-20px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-container, .fade-slide-enter-active, .fade-slide-leave-active { transition: none; }
 }
 </style>

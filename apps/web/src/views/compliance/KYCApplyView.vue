@@ -340,7 +340,7 @@ onMounted(() => {
 /* 页面标题 */
 .page-header {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 32px;
   color: white;
 }
@@ -366,7 +366,7 @@ onMounted(() => {
 /* DID要求提示 */
 .did-required {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 60px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -394,7 +394,7 @@ onMounted(() => {
 /* 状态概览 */
 .status-overview {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -415,7 +415,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20px;
+  border-radius: 12px;
   color: white;
 }
 
@@ -501,7 +501,7 @@ onMounted(() => {
 /* 认证等级 */
 .levels-section {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -575,7 +575,7 @@ onMounted(() => {
 /* 表单区域 */
 .form-section {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -638,7 +638,7 @@ onMounted(() => {
   border: 2px dashed #e2e8f0;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: transform 300ms ease-out, box-shadow 300ms ease-out;
 }
 
 .upload-content:hover {
@@ -674,7 +674,7 @@ onMounted(() => {
 /* 成功区域 */
 .success-section {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 48px;
   color: white;
   text-align: center;
@@ -718,7 +718,7 @@ onMounted(() => {
 /* 安全保障 */
 .security-section {
   background: #f8fafc;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 32px;
 }
 

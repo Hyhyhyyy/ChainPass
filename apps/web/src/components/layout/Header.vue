@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore, useAppStore } from '@/stores'
 import { ElMessageBox, ElMessage } from 'element-plus'
@@ -14,6 +15,7 @@ const emit = defineEmits<{
 const router = useRouter()
 const userStore = useUserStore()
 const appStore = useAppStore()
+const roleLabel = computed(() => userStore.hasPermission('system:user:list') ? '系统管理员' : '普通用户')
 
 async function handleLogout() {
   try {
@@ -97,7 +99,7 @@ function handleCommand(command: string) {
           </el-avatar>
           <div class="user-text">
             <span class="username">{{ userStore.nickname || userStore.username || '用户' }}</span>
-            <span class="user-role">普通用户</span>
+            <span class="user-role">{{ roleLabel }}</span>
           </div>
           <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
         </div>
@@ -139,8 +141,8 @@ function handleCommand(command: string) {
   height: 64px;
   padding: 0 24px;
   background-color: #ffffff;
-  border-bottom: 1px solid #f1f5f9;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid #e6ebf1;
+  box-shadow: 0 1px 2px rgba(10, 37, 64, 0.04);
 }
 
 .left {
@@ -154,8 +156,8 @@ function handleCommand(command: string) {
 }
 
 .toggle-btn:hover {
-  color: #667eea;
-  background: #f8fafc;
+  color: #635bff;
+  background: #f6f9fc;
 }
 
 .breadcrumb {
@@ -177,7 +179,7 @@ function handleCommand(command: string) {
 }
 
 .breadcrumb :deep(.el-breadcrumb__inner:hover) {
-  color: #667eea;
+  color: #635bff;
 }
 
 .right {
@@ -191,8 +193,8 @@ function handleCommand(command: string) {
 }
 
 .action-btn:hover {
-  color: #667eea;
-  background: #f8fafc;
+  color: #635bff;
+  background: #f6f9fc;
 }
 
 .divider {
@@ -209,15 +211,16 @@ function handleCommand(command: string) {
   cursor: pointer;
   padding: 6px 12px;
   border-radius: 12px;
-  transition: all 0.3s;
+  transition: background-color 200ms ease-out, transform 200ms ease-out;
 }
 
 .user-info:hover {
-  background: #f8fafc;
+  background: #f6f9fc;
+  transform: translateY(-1px);
 }
 
 .avatar {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #635bff;
   color: white;
   font-weight: 600;
 }
@@ -241,7 +244,7 @@ function handleCommand(command: string) {
 
 .dropdown-icon {
   color: #94a3b8;
-  transition: transform 0.3s;
+  transition: transform 200ms ease-out;
 }
 
 .user-info:hover .dropdown-icon {
@@ -251,7 +254,7 @@ function handleCommand(command: string) {
 /* 下拉菜单样式 */
 :deep(.user-dropdown) {
   padding: 8px;
-  border-radius: 16px;
+  border-radius: 12px;
   min-width: 220px;
 }
 
@@ -261,7 +264,7 @@ function handleCommand(command: string) {
   gap: 12px;
   padding: 16px;
   margin: -8px -8px 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a2540;
   border-radius: 12px 12px 0 0;
 }
 
@@ -298,6 +301,11 @@ function handleCommand(command: string) {
 
 :deep(.el-dropdown-menu__item:hover) {
   background: #f8fafc;
-  color: #667eea;
+  color: #635bff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-info, .dropdown-icon { transition: none; }
+  .user-info:hover { transform: none; }
 }
 </style>

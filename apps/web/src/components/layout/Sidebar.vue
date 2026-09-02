@@ -69,6 +69,12 @@ const menuItems = [
     color: '#3b82f6'
   },
   {
+    path: '/competition/readiness',
+    icon: 'DocumentChecked',
+    title: '参赛合规自检',
+    color: '#635bff'
+  },
+  {
     path: '/system',
     icon: 'Setting',
     title: '系统管理',
@@ -113,8 +119,8 @@ function navigateTo(path: string) {
         :collapse="collapsed"
         :collapse-transition="false"
         background-color="transparent"
-        text-color="#64748b"
-        active-text-color="#667eea"
+        text-color="#c8d6e5"
+        active-text-color="#ffffff"
         router
         class="sidebar-menu"
       >
@@ -161,9 +167,12 @@ function navigateTo(path: string) {
   top: 0;
   left: 0;
   height: 100vh;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-  border-right: none;
-  transition: width 0.3s ease;
+  background: #0a2540;
+  background-image: linear-gradient(to right, rgba(128, 233, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128, 233, 255, 0.055) 1px, transparent 1px);
+  background-size: 40px 40px;
+  border-right: 1px solid rgba(128, 233, 255, 0.12);
+  transition: width 300ms ease-out;
   overflow: hidden;
   z-index: 100;
   display: flex;
@@ -192,17 +201,14 @@ function navigateTo(path: string) {
 .logo-text {
   font-size: 21px;
   font-weight: 800;
-  font-style: italic;
   letter-spacing: -0.5px;
-  background: linear-gradient(100deg, #60a5fa, #22d3ee);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
   white-space: nowrap;
 }
 
 .logo-tagline {
   margin-top: 6px;
-  color: #94a3b8;
+  color: #aebfd0;
   font-size: 10px;
   letter-spacing: 1.2px;
   white-space: nowrap;
@@ -224,29 +230,19 @@ function navigateTo(path: string) {
   line-height: 48px;
   border-radius: 12px;
   margin-bottom: 4px;
-  transition: all 0.3s;
+  transition: color 200ms ease-out, background-color 200ms ease-out, transform 200ms ease-out;
 }
 
 .sidebar-menu :deep(.el-menu-item:hover),
 .sidebar-menu :deep(.el-sub-menu__title:hover) {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.075);
+  transform: translateY(-1px);
 }
 
 .sidebar-menu :deep(.el-menu-item.is-active) {
-  background: rgba(102, 126, 234, 0.15);
-  color: #667eea;
-}
-
-.sidebar-menu :deep(.el-menu-item.is-active::before) {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 24px;
-  background: linear-gradient(180deg, #667eea, #764ba2);
-  border-radius: 0 4px 4px 0;
+  background: rgba(99, 91, 255, 0.28);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 6px 14px rgba(0, 0, 0, .16);
 }
 
 .menu-item-title {
@@ -271,17 +267,21 @@ function navigateTo(path: string) {
   color: #64748b;
   cursor: pointer;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s;
+  transition: color 200ms ease-out, background-color 200ms ease-out;
 }
 
 .collapse-trigger:hover {
-  color: #667eea;
+  color: #80e9ff;
   background: rgba(255, 255, 255, 0.05);
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s;
+  transition: opacity 200ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .sidebar-menu :deep(.el-menu-item), .sidebar-menu :deep(.el-sub-menu__title), .collapse-trigger { transition: none; }
 }
 
 .fade-enter-from,
