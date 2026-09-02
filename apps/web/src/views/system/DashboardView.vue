@@ -6,7 +6,7 @@ import {
   User, Key, Wallet, Lock, Tickets, Position,
   CircleCheck, CircleClose, Loading, Document,
   ArrowUp, ArrowDown, Plus, Refresh, Right,
-  QuestionFilled, Star, Timer, DocumentChecked
+  QuestionFilled, Star, Timer
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
 import { didApi } from '@/api/did'
@@ -204,15 +204,6 @@ onMounted(() => {
           stroke-linecap="round"
         />
       </div>
-    </div>
-
-    <div class="competition-banner" @click="router.push('/competition/readiness')">
-      <div class="competition-icon"><el-icon><DocumentChecked /></el-icon></div>
-      <div>
-        <strong>中国国际大学生创新大赛（2026）申报自检</strong>
-        <p>核验参赛资格、成员贡献、知识产权、证据真实性和材料原创性，导出可追溯自检记录。</p>
-      </div>
-      <el-button type="primary">开始自检 <el-icon><Right /></el-icon></el-button>
     </div>
 
     <!-- 新手引导卡片 -->
@@ -577,42 +568,6 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.competition-banner {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 18px;
-  padding: 22px 24px;
-  color: #0a2540;
-  background-color: #ffffff;
-  background-image: linear-gradient(to right, rgba(99, 91, 255, .07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(99, 91, 255, .07) 1px, transparent 1px);
-  background-size: 40px 40px;
-  border: 1px solid rgba(99, 91, 255, .2);
-  border-radius: 14px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .04), 0 8px 16px rgba(0, 0, 0, .08);
-  cursor: pointer;
-  transition: transform 400ms ease-out, box-shadow 400ms ease-out;
-}
-
-.competition-banner:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(10, 37, 64, .08);
-}
-
-.competition-banner strong { display: block; margin-bottom: 5px; font-size: 17px; }
-.competition-banner p { color: #526579; font-size: 13px; line-height: 1.55; }
-.competition-icon {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  color: #ffffff;
-  background: #635bff;
-  border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(99, 91, 255, .4), inset 0 1px 0 rgba(255, 255, 255, .2);
-}
-
 /* 新手引导 */
 .guide-section {
   background: white;
@@ -752,13 +707,6 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 
-  .competition-banner {
-    grid-template-columns: auto 1fr;
-  }
-
-  .competition-banner .el-button {
-    grid-column: 1 / -1;
-  }
 }
 
 .feature-card {

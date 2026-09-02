@@ -69,12 +69,6 @@ const menuItems = [
     color: '#3b82f6'
   },
   {
-    path: '/competition/readiness',
-    icon: 'DocumentChecked',
-    title: '参赛合规自检',
-    color: '#635bff'
-  },
-  {
     path: '/system',
     icon: 'Setting',
     title: '系统管理',
