@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,6 +51,7 @@ class VCServiceTest {
         issueRequest = new VCDto.IssueVCRequest();
         issueRequest.setHolderDid("did:chainpass:test");
         issueRequest.setVcType("KYCCredential");
+        issueRequest.setClaims(Map.of("assuranceLevel", 1));
 
         vcType = new VCType();
         vcType.setTypeCode("KYCCredential");
@@ -78,6 +80,8 @@ class VCServiceTest {
         assertTrue(credential.getType().contains("VerifiableCredential"));
         assertTrue(credential.getType().contains("KYCCredential"));
         assertNotNull(credential.getProof());
+        assertEquals(Map.of("assuranceLevel", 1), issueRequest.getClaims(),
+                "签发过程不应修改调用方传入的不可变声明");
 
         verify(vcRecordMapper, times(1)).insert(any(VCRecord.class));
     }

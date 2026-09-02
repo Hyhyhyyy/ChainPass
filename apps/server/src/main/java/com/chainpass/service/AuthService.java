@@ -117,7 +117,7 @@ public class AuthService {
 
         // 检查 Redis 中是否存在
         String refreshKey = "refresh:" + refreshToken;
-        Long userId = redisCache.getCacheObject(refreshKey);
+        Long userId = redisCache.getCacheObject(refreshKey, Long.class);
 
         if (userId == null) {
             throw new RuntimeException("刷新令牌已过期");
@@ -168,7 +168,7 @@ public class AuthService {
      */
     private void checkLoginRateLimit(String username) {
         String key = "login:attempts:" + username;
-        Integer attempts = redisCache.getCacheObject(key);
+        Integer attempts = redisCache.getCacheObject(key, Integer.class);
 
         if (attempts != null && attempts >= MAX_LOGIN_ATTEMPTS) {
             Long ttl = redisCache.getExpire(key);
@@ -182,7 +182,7 @@ public class AuthService {
      */
     private void recordLoginFailure(String username) {
         String key = "login:attempts:" + username;
-        Integer attempts = redisCache.getCacheObject(key);
+        Integer attempts = redisCache.getCacheObject(key, Integer.class);
 
         if (attempts == null) {
             redisCache.setCacheObject(key, 1, LOGIN_LOCK_TIME, TimeUnit.MILLISECONDS);

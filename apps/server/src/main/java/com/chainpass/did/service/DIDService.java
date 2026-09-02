@@ -155,7 +155,7 @@ public class DIDService {
     public DIDDocument getDIDByUserId(Long userId) {
         // 尝试从缓存获取
         String cacheKey = DID_CACHE_PREFIX + "user:" + userId;
-        DIDDocument cached = redisCache.getCacheObject(cacheKey);
+        DIDDocument cached = redisCache.getCacheObject(cacheKey, DIDDocument.class);
         if (cached != null) {
             return cached;
         }
@@ -179,7 +179,7 @@ public class DIDService {
     public DIDDocument getDIDByDid(String did) {
         // 尝试从缓存获取
         String cacheKey = DID_CACHE_PREFIX + "did:" + did;
-        DIDDocument cached = redisCache.getCacheObject(cacheKey);
+        DIDDocument cached = redisCache.getCacheObject(cacheKey, DIDDocument.class);
         if (cached != null) {
             return cached;
         }

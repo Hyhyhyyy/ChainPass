@@ -1,5 +1,6 @@
 package com.chainpass.util;
 
+import com.alibaba.fastjson2.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,23 @@ public class RedisCache {
     @SuppressWarnings("unchecked")
     public <T> T getCacheObject(String key) {
         return (T) redisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 获取指定类型的缓存对象。
+     *
+     * Redis 的通用 JSON 序列化器会把复杂对象恢复为 JSONObject，并可能把较小的
+     * Long 恢复为 Integer。调用方不能依赖泛型强转，因此在缓存边界统一完成转换。
+     */
+    public <T> T getCacheObject(String key, Class<T> targetType) {
+        Object value = redisTemplate.opsForValue().get(key);
+        if (value == null) {
+            return null;
+        }
+        if (targetType.isInstance(value)) {
+            return targetType.cast(value);
+        }
+        return JSON.parseObject(JSON.toJSONString(value), targetType);
     }
 
     /**

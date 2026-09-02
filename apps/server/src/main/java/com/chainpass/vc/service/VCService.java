@@ -73,7 +73,11 @@ public class VCService {
             String vcId = "urn:uuid:" + UUID.randomUUID().toString();
 
             // 5. 构建凭证主体
-            Map<String, Object> claims = request.getClaims() != null ? request.getClaims() : new HashMap<>();
+            // 调用方常用 Map.of(...) 传入不可变声明；签发服务必须复制后再补充系统字段，
+            // 也避免意外修改调用方持有的 Map。
+            Map<String, Object> claims = request.getClaims() != null
+                    ? new HashMap<>(request.getClaims())
+                    : new HashMap<>();
             claims.put("credentialType", vcType.getTypeName());
             claims.put("issuer", IssuerKeyService.ISSUER_DID);
 

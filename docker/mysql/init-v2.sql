@@ -6,6 +6,7 @@
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS chainpass DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE chainpass;
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- =====================================================
 -- 1. 用户与权限系统（已有，保留）

@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 从 Redis 获取用户信息
             String redisKey = "login:" + token;
-            LoginUser loginUser = redisCache.getCacheObject(redisKey);
+            LoginUser loginUser = redisCache.getCacheObject(redisKey, LoginUser.class);
 
             if (loginUser == null) {
                 log.debug("Token not found in Redis: {}", token);

@@ -456,7 +456,7 @@ public class PaymentService {
 
         // 尝试从缓存获取
         String cacheKey = RATE_CACHE_PREFIX + from + ":" + to;
-        BigDecimal cached = redisCache.getCacheObject(cacheKey);
+        BigDecimal cached = redisCache.getCacheObject(cacheKey, BigDecimal.class);
         if (cached != null) {
             return cached;
         }
