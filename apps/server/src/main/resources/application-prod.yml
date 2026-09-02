@@ -34,20 +34,11 @@ chainpass:
     secret: ${JWT_SECRET}
     access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:900000}
     refresh-token-ttl: ${JWT_REFRESH_TOKEN_TTL:604800000}
-  oauth2:
-    gitee:
-      client-id: ${GITEE_CLIENT_ID}
-      client-secret: ${GITEE_CLIENT_SECRET}
-      redirect-uri: ${GITEE_REDIRECT_URI}
-      state-secret: ${OAUTH_STATE_SECRET}
 
 # 安全配置
 security:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:https://your-domain.com}
-  rate-limit:
-    enabled: ${RATE_LIMIT_ENABLED:true}
-    requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:100}
 
 # Actuator配置（生产环境）
 management:

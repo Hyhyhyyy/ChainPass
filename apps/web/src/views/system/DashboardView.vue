@@ -13,10 +13,6 @@ import { didApi } from '@/api/did'
 import { vcApi } from '@/api/vc'
 import { paymentApi, type TransactionHistory } from '@/api/payment'
 import { kycApi } from '@/api/kyc'
-import { mockDID, mockWallet, mockKYCStatus, mockVCList, mockTransactions } from '@/mock/previewData'
-
-// 预览模式
-const PREVIEW_MODE = true
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -41,21 +37,21 @@ const validVCCount = computed(() => vcList.value.filter(v => v.status === 'VALID
 const guideSteps = [
   {
     title: '创建DID身份',
-    description: 'DID是您在区块链上的数字身份，是使用所有功能的基础',
+    description: 'DID是您在 ChainPass 注册表中的数字标识，是使用身份功能的基础',
     icon: Key,
     action: '/identity/did',
     completed: false
   },
   {
     title: '完成KYC认证',
-    description: '通过身份认证后可获得支付凭证，解锁跨境支付功能',
+    description: '提交信息后由授权审核员复核，通过后签发最小披露凭证',
     icon: Lock,
     action: '/compliance/kyc',
     completed: false
   },
   {
-    title: '开始跨境支付',
-    description: '使用您的DID身份进行安全、合规的跨境转账',
+    title: '发起跨境合规支付',
+    description: '使用您的DID身份在内部多币种测试账本中转账',
     icon: Position,
     action: '/payment/transfer',
     completed: false
@@ -88,7 +84,7 @@ async function fetchDIDStatus() {
 async function fetchVCList() {
   if (!hasDID.value) return
   try {
-    const res = await vcApi.getList(hasDID.value)
+    const res = await vcApi.getMy()
     if (res.code === 200) {
       vcList.value = res.data || []
     }
@@ -139,20 +135,8 @@ async function fetchRecentTransactions() {
 async function refreshAll() {
   loading.value = true
   try {
-    // 预览模式使用假数据
-    if (PREVIEW_MODE) {
-      didStatus.value = mockDID as any
-      guideSteps[0].completed = true
-      walletInfo.value = mockWallet as any
-      kycStatus.value = mockKYCStatus as any
-      guideSteps[1].completed = true
-      vcList.value = mockVCList as any
-      recentTransactions.value = mockTransactions.slice(0, 5) as any
-      guideSteps[2].completed = true
-    } else {
-      await Promise.all([fetchDIDStatus(), fetchWallet(), fetchKYCStatus()])
-      await Promise.all([fetchVCList(), fetchRecentTransactions()])
-    }
+    await Promise.allSettled([fetchDIDStatus(), fetchWallet(), fetchKYCStatus()])
+    await Promise.allSettled([fetchVCList(), fetchRecentTransactions()])
   } finally {
     loading.value = false
   }
@@ -197,7 +181,7 @@ onMounted(() => {
       <div class="welcome-content">
         <div class="welcome-text">
           <h1>欢迎使用 ChainPass</h1>
-          <p>基于区块链的跨境数字身份与合规支付解决方案</p>
+          <p>本地数字身份、签名凭证与多币种沙盒账本</p>
         </div>
         <div class="welcome-actions">
           <el-button type="primary" size="large" @click="showGuide = true">
@@ -229,7 +213,7 @@ onMounted(() => {
           <el-icon class="star-icon"><Star /></el-icon>
           快速开始
         </h2>
-        <p>完成以下步骤，开启您的区块链身份之旅</p>
+        <p>完成以下步骤，体验数字身份与签名凭证流程</p>
       </div>
 
       <div class="guide-steps">
@@ -275,7 +259,7 @@ onMounted(() => {
           </el-tag>
         </div>
         <h3>DID 数字身份</h3>
-        <p>{{ hasDID ? '您的去中心化身份已激活' : '创建您的区块链数字身份' }}</p>
+        <p>{{ hasDID ? '您的本地数字身份已激活' : '创建您的本地数字身份' }}</p>
         <div class="feature-status" v-if="hasDID">
           <code class="did-code">{{ didStatus?.did?.substring(0, 25) }}...</code>
         </div>
@@ -374,8 +358,8 @@ onMounted(() => {
             <el-icon><Position /></el-icon>
           </div>
           <div class="action-info">
-            <h4>跨境支付</h4>
-            <p>安全便捷的跨境转账</p>
+            <h4>跨境合规支付</h4>
+            <p>内部多币种测试额度转账</p>
           </div>
         </div>
         <div class="action-card history" @click="router.push('/payment/history')">
@@ -451,13 +435,13 @@ onMounted(() => {
             <el-icon><Lock /></el-icon>
           </div>
           <h4>隐私保护</h4>
-          <p>零知识证明技术，验证身份不暴露隐私</p>
+          <p>Ed25519 挑战签名可证明当前持有对应私钥</p>
         </div>
         <div class="intro-item">
           <div class="intro-icon">
             <el-icon><Position /></el-icon>
           </div>
-          <h4>跨境支付</h4>
+          <h4>沙盒账本</h4>
           <p>多币种支持，合规便捷的国际转账</p>
         </div>
         <div class="intro-item">
@@ -465,7 +449,7 @@ onMounted(() => {
             <el-icon><Tickets /></el-icon>
           </div>
           <h4>可信凭证</h4>
-          <p>W3C标准凭证，全球范围可验证</p>
+          <p>自定义签名 JSON 凭证，可在本服务内验证完整性和状态</p>
         </div>
       </div>
     </div>
@@ -484,7 +468,7 @@ onMounted(() => {
             <el-icon :size="48"><Key /></el-icon>
           </div>
           <h2>欢迎使用 ChainPass</h2>
-          <p>让我们一起开启区块链身份之旅</p>
+          <p>开始体验数字身份与沙盒账本</p>
         </div>
 
         <div class="guide-timeline">
@@ -492,7 +476,7 @@ onMounted(() => {
             <div class="timeline-dot">1</div>
             <div class="timeline-content">
               <h4>创建 DID 身份</h4>
-              <p>DID 是您在区块链上的唯一身份标识，是使用所有功能的基础</p>
+              <p>DID 是您在 ChainPass 本地注册表中的标识，是使用身份功能的基础</p>
             </div>
           </div>
           <div class="timeline-item" :class="{ active: currentStep === 1 }">
@@ -505,8 +489,8 @@ onMounted(() => {
           <div class="timeline-item" :class="{ active: currentStep === 2 }">
             <div class="timeline-dot">3</div>
             <div class="timeline-content">
-              <h4>开始跨境支付</h4>
-              <p>使用您的 DID 身份进行安全、合规的跨境转账</p>
+              <h4>发起跨境合规支付</h4>
+              <p>使用您的 DID 身份在内部测试账本中转移额度</p>
             </div>
           </div>
         </div>

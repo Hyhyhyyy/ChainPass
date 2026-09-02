@@ -17,4 +17,13 @@
         SELECT permission_id FROM sys_role_permission WHERE role_id = #{roleId}
     </select>
 
+    <select id="selectPermissionCodesByUserId" resultType="java.lang.String">
+        SELECT DISTINCT p.permission_code
+        FROM sys_user_role ur
+        JOIN sys_role r ON r.id = ur.role_id AND r.status = 0
+        JOIN sys_role_permission rp ON rp.role_id = r.id
+        JOIN sys_permission p ON p.id = rp.permission_id AND p.status = 0
+        WHERE ur.user_id = #{userId}
+    </select>
+
 </mapper>

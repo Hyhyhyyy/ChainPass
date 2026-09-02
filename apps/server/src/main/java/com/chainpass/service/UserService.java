@@ -8,6 +8,7 @@ import com.chainpass.entity.LoginUser;
 import com.chainpass.entity.User;
 import com.chainpass.exception.BusinessException;
 import com.chainpass.mapper.UserMapper;
+import com.chainpass.mapper.RolePermissionMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.Authentication;
@@ -35,6 +36,7 @@ public class UserService implements UserDetailsService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RolePermissionMapper rolePermissionMapper;
 
     // 密码强度正则：至少8位，包含大小写字母和数字
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
@@ -64,8 +66,7 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("用户不存在: " + username);
         }
 
-        // TODO: 从数据库获取权限
-        List<String> permissions = List.of("system:test:list", "system:user:list");
+        List<String> permissions = rolePermissionMapper.selectPermissionCodesByUserId(user.getId());
 
         log.debug("User loaded: {}", username);
         return new LoginUser(user, permissions);
@@ -259,28 +260,4 @@ public class UserService implements UserDetailsService {
         log.info("Password changed for user: {}", currentUser.getUsername());
     }
 
-    /**
-     * 根据 Gitee ID 查询用户
-     */
-    public User selectUserByGiteeId(String giteeId) {
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getGiteeId, giteeId);
-        return userMapper.selectOne(queryWrapper);
-    }
-
-    /**
-     * 注册用户
-     */
-    public void registerUser(User user) {
-        // 验证密码强度
-        validatePasswordStrength(user.getPassword());
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setStatus(0);
-        user.setDelFlag(0);
-        user.setCreatedAt(LocalDateTime.now());
-        user.setUpdatedAt(LocalDateTime.now());
-        userMapper.insert(user);
-        log.info("User registered: {}", user.getUsername());
-    }
 }

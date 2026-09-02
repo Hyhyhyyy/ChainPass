@@ -70,7 +70,7 @@ function handleCommand(command: string) {
 
     <div class="right">
       <!-- 快捷操作 -->
-      <el-tooltip content="跨境支付" placement="bottom">
+      <el-tooltip content="跨境合规支付" placement="bottom">
         <el-button text circle class="action-btn" @click="router.push('/payment/transfer')">
           <el-icon><Position /></el-icon>
         </el-button>

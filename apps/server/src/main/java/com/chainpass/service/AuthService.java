@@ -4,6 +4,7 @@ import com.chainpass.dto.LoginRequest;
 import com.chainpass.entity.LoginUser;
 import com.chainpass.entity.User;
 import com.chainpass.mapper.UserMapper;
+import com.chainpass.mapper.RolePermissionMapper;
 import com.chainpass.util.JwtService;
 import com.chainpass.util.RedisCache;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final RedisCache redisCache;
     private final UserMapper userMapper;
+    private final RolePermissionMapper rolePermissionMapper;
 
     // 登录速率限制配置
     private static final int MAX_LOGIN_ATTEMPTS = 5;
@@ -78,7 +80,7 @@ public class AuthService {
                     .username(user.getUsername())
                     .nickname(user.getNickname())
                     .avatar(user.getAvatar())
-                    .giteeId(user.getGiteeId())
+                    .permissions(loginUser.getPermissions())
                     .build();
 
         } catch (Exception e) {
@@ -138,7 +140,7 @@ public class AuthService {
         redisCache.deleteObject(refreshKey);
 
         // 存储新的 Token
-        List<String> permissions = List.of("system:test:list"); // TODO: 从数据库获取权限
+        List<String> permissions = rolePermissionMapper.selectPermissionCodesByUserId(user.getId());
         LoginUser loginUser = new LoginUser(user, permissions);
 
         String accessKey = "login:" + newAccessToken;
@@ -157,6 +159,7 @@ public class AuthService {
                 .userId(user.getId())
                 .username(user.getUsername())
                 .nickname(user.getNickname())
+                .permissions(permissions)
                 .build();
     }
 
@@ -198,50 +201,4 @@ public class AuthService {
         redisCache.deleteObject(key);
     }
 
-    /**
-     * 检查Token是否在黑名单中
-     */
-    public boolean isTokenBlacklisted(String token) {
-        String blacklistKey = "token:blacklist:" + token;
-        return redisCache.hasKey(blacklistKey);
-    }
-
-    /**
-     * 根据用户ID生成登录响应
-     * 用于二维码扫码登录等场景
-     */
-    public com.chainpass.vo.LoginResponse generateLoginResponse(Long userId) {
-        User user = userMapper.selectById(userId);
-        if (user == null) {
-            throw new RuntimeException("用户不存在");
-        }
-
-        // 生成 Token
-        String accessToken = jwtService.generateAccessToken(user.getId(), user.getUsername());
-        String refreshToken = jwtService.generateRefreshToken(user.getId());
-
-        // 存储到 Redis
-        List<String> permissions = List.of("system:test:list"); // TODO: 从数据库获取权限
-        LoginUser loginUser = new LoginUser(user, permissions);
-
-        String accessKey = "login:" + accessToken;
-        String refreshKey = "refresh:" + refreshToken;
-
-        redisCache.setCacheObject(accessKey, loginUser,
-                jwtService.getAccessTokenTtl(), TimeUnit.MILLISECONDS);
-        redisCache.setCacheObject(refreshKey, user.getId(),
-                jwtService.getRefreshTokenTtl(), TimeUnit.MILLISECONDS);
-
-        log.info("Login response generated for user: {}", user.getUsername());
-
-        return com.chainpass.vo.LoginResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .userId(user.getId())
-                .username(user.getUsername())
-                .nickname(user.getNickname())
-                .avatar(user.getAvatar())
-                .giteeId(user.getGiteeId())
-                .build();
-    }
 }

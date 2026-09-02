@@ -25,4 +25,7 @@ public interface RolePermissionMapper {
      * 查询角色的权限ID列表
      */
     List<Long> selectPermissionIdsByRoleId(@Param("roleId") Long roleId);
+
+    /** 查询用户经由启用角色获得的启用权限编码。 */
+    List<String> selectPermissionCodesByUserId(@Param("userId") Long userId);
 }

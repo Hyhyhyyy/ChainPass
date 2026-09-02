@@ -14,13 +14,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * DID控制器 - 去中心化身份API
+ * 本地 DID 标识控制器
  */
 
 @RestController
 @RequestMapping("/did")
 @RequiredArgsConstructor
-@Tag(name = "DID管理", description = "去中心化身份管理接口")
+@Tag(name = "DID管理", description = "did:chainpass 本地标识管理接口")
 public class DIDController {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DIDController.class);
 
@@ -30,7 +30,7 @@ public class DIDController {
      * 创建DID
      */
     @PostMapping("/create")
-    @Operation(summary = "创建DID", description = "为当前用户创建去中心化身份")
+    @Operation(summary = "创建DID", description = "为当前用户创建本地 did:chainpass 标识")
     public ApiResponse<DIDDocument> createDID(@AuthenticationPrincipal LoginUser loginUser) {
         log.info("Creating DID for user: {}", loginUser.getUserId());
         DIDDocument document = didService.createDID(loginUser.getUserId());
@@ -85,7 +85,7 @@ public class DIDController {
             @RequestParam(required = false, defaultValue = "用户主动吊销") String reason) {
 
         log.info("Revoking DID: {} by user: {}", did, loginUser.getUserId());
-        didService.revokeDID(did, reason);
+        didService.revokeDID(did, loginUser.getUserId(), reason);
         return ApiResponse.success();
     }
 

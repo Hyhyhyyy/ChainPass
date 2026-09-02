@@ -3,6 +3,7 @@ package com.chainpass.entity;
 import com.baomidou.mybatisplus.annotation.*;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 用户实体类
@@ -17,6 +18,7 @@ public class User {
 
     private String nickname;
 
+    @JsonIgnore
     private String password;
 
     private String email;

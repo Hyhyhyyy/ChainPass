@@ -6,7 +6,9 @@ import com.chainpass.payment.dto.PaymentDto;
 import com.chainpass.payment.entity.PaymentOrder;
 import com.chainpass.payment.entity.Wallet;
 import com.chainpass.payment.mapper.*;
+import com.chainpass.compliance.kyc.KYCService;
 import com.chainpass.vc.service.VCService;
+import com.chainpass.util.RedisCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,7 +47,13 @@ class PaymentServiceTest {
     private DIDService didService;
 
     @Mock
+    private KYCService kycService;
+
+    @Mock
     private VCService vcService;
+
+    @Mock
+    private RedisCache redisCache;
 
     @InjectMocks
     private PaymentService paymentService;
@@ -85,11 +93,21 @@ class PaymentServiceTest {
         request.setPayeeDid(payeeDid);
         request.setAmount(new BigDecimal("100.00"));
         request.setCurrency("CNY");
+        request.setSourceCountry("CN");
+        request.setTargetCountry("SG");
+        request.setBeneficiaryName("Test Payee");
+        request.setPaymentPurpose("EDUCATION");
 
         when(didService.isValidDID(payerDid)).thenReturn(true);
         when(didService.isValidDID(payeeDid)).thenReturn(true);
         when(walletMapper.findByDid(payerDid)).thenReturn(payerWallet);
-        when(orderMapper.insert(any())).thenReturn(1);
+        when(walletMapper.findByDid(payeeDid)).thenReturn(payeeWallet);
+        when(kycService.isDIDKYCVerified(payerDid)).thenReturn(true);
+        when(kycService.isDIDKYCVerified(payeeDid)).thenReturn(true);
+        when(kycService.isBeneficiaryNameConsistent(payeeDid, "Test Payee")).thenReturn(true);
+        when(vcService.hasValidCredential(payerDid, "KYCCredential")).thenReturn(true);
+        when(vcService.hasValidCredential(payeeDid, "KYCCredential")).thenReturn(true);
+        when(orderMapper.insert(any(PaymentOrder.class))).thenReturn(1);
 
         // When
         PaymentOrder order = paymentService.createPayment(payerDid, request);
@@ -102,7 +120,41 @@ class PaymentServiceTest {
         assertEquals(payeeDid, order.getPayeeDid());
         assertEquals(0, order.getStatus());
 
-        verify(orderMapper, times(1)).insert(any());
+        verify(orderMapper, times(1)).insert(any(PaymentOrder.class));
+    }
+
+    @Test
+    @DisplayName("跨币种订单按源币收取手续费并按目标币到账")
+    void testCreatePayment_CrossCurrencyAccounting() {
+        PaymentDto.CreatePaymentRequest request = new PaymentDto.CreatePaymentRequest();
+        request.setPayeeDid(payeeDid);
+        request.setAmount(new BigDecimal("100.00"));
+        request.setCurrency("CNY");
+        request.setTargetCurrency("USD");
+        request.setSourceCountry("CN");
+        request.setTargetCountry("SG");
+        request.setBeneficiaryName("Test Payee");
+        request.setPaymentPurpose("EDUCATION");
+
+        when(didService.isValidDID(payerDid)).thenReturn(true);
+        when(didService.isValidDID(payeeDid)).thenReturn(true);
+        when(walletMapper.findByDid(payerDid)).thenReturn(payerWallet);
+        when(walletMapper.findByDid(payeeDid)).thenReturn(payeeWallet);
+        when(rateMapper.getRate("CNY", "USD")).thenReturn(new BigDecimal("0.1389"));
+        when(kycService.isDIDKYCVerified(payerDid)).thenReturn(true);
+        when(kycService.isDIDKYCVerified(payeeDid)).thenReturn(true);
+        when(kycService.isBeneficiaryNameConsistent(payeeDid, "Test Payee")).thenReturn(true);
+        when(vcService.hasValidCredential(payerDid, "KYCCredential")).thenReturn(true);
+        when(vcService.hasValidCredential(payeeDid, "KYCCredential")).thenReturn(true);
+
+        PaymentOrder order = paymentService.createPayment(payerDid, request);
+
+        assertEquals(new BigDecimal("100.00"), order.getOriginalAmount());
+        assertEquals("CNY", order.getOriginalCurrency());
+        assertEquals(new BigDecimal("13.89"), order.getAmount());
+        assertEquals("USD", order.getCurrency());
+        assertEquals(new BigDecimal("0.10"), order.getFeeAmount());
+        assertEquals("CNY", order.getFeeCurrency());
     }
 
     @Test
@@ -113,6 +165,10 @@ class PaymentServiceTest {
         request.setPayeeDid(payeeDid);
         request.setAmount(new BigDecimal("100.00"));
         request.setCurrency("CNY");
+        request.setSourceCountry("CN");
+        request.setTargetCountry("SG");
+        request.setBeneficiaryName("Test Payee");
+        request.setPaymentPurpose("EDUCATION");
 
         when(didService.isValidDID(payerDid)).thenReturn(false);
 
@@ -121,7 +177,7 @@ class PaymentServiceTest {
             paymentService.createPayment(payerDid, request);
         });
 
-        verify(orderMapper, never()).insert(any());
+        verify(orderMapper, never()).insert(any(PaymentOrder.class));
     }
 
     @Test
@@ -154,7 +210,7 @@ class PaymentServiceTest {
         // Given
         Long userId = 1L;
         when(walletMapper.findByUserId(userId)).thenReturn(null);
-        when(walletMapper.insert(any())).thenReturn(1);
+        when(walletMapper.insert(any(Wallet.class))).thenReturn(1);
 
         // When
         Wallet wallet = paymentService.createWallet(userId, payerDid);
@@ -164,6 +220,7 @@ class PaymentServiceTest {
         assertTrue(wallet.getAddress().startsWith("0x"));
         assertEquals(payerDid, wallet.getDid());
 
-        verify(walletMapper, times(4)).addCnyBalance(any(), any()); // 初始化余额
+        assertEquals(BigDecimal.ZERO, wallet.getBalanceCny());
+        verify(walletMapper, never()).addCnyBalance(any(), any());
     }
 }

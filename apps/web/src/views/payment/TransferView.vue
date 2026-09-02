@@ -7,10 +7,6 @@ import {
 } from '@element-plus/icons-vue'
 import { paymentApi, type PaymentOrder } from '@/api/payment'
 import { didApi } from '@/api/did'
-import { mockWallet, mockExchangeRate, mockDID } from '@/mock/previewData'
-
-// 预览模式
-const PREVIEW_MODE = true
 
 // 表单数据
 const form = ref({
@@ -18,6 +14,10 @@ const form = ref({
   amount: null as number | null,
   currency: 'CNY',
   targetCurrency: '',
+  sourceCountry: 'CN',
+  targetCountry: 'SG',
+  beneficiaryName: '',
+  paymentPurpose: 'GOODS_SERVICES',
   description: ''
 })
 
@@ -30,6 +30,7 @@ const feeAmount = ref<number | null>(null)
 const createdOrder = ref<PaymentOrder | null>(null)
 const showConfirm = ref(false)
 const showSuccess = ref(false)
+const complianceMessage = ref('')
 
 // 货币选项
 const currencyOptions = [
@@ -38,7 +39,20 @@ const currencyOptions = [
   { value: 'ETH', label: '以太坊', symbol: 'Ξ', flag: '💎' }
 ]
 
-// 是否跨境支付
+const countryOptions = [
+  ['CN', '中国'], ['HK', '中国香港'], ['SG', '新加坡'], ['US', '美国'], ['GB', '英国'],
+  ['JP', '日本'], ['KR', '韩国'], ['DE', '德国'], ['FR', '法国'], ['AU', '澳大利亚'], ['CA', '加拿大']
+].map(([value, label]) => ({ value, label }))
+
+const purposeOptions = [
+  { value: 'GOODS_SERVICES', label: '商品或服务贸易' },
+  { value: 'EDUCATION', label: '教育支出' },
+  { value: 'FAMILY_SUPPORT', label: '家庭赡养' },
+  { value: 'TRAVEL', label: '旅行支出' },
+  { value: 'BUSINESS', label: '商业往来' }
+]
+
+// 是否进行沙盒记账单位换算
 const isCrossBorder = computed(() => {
   return form.value.targetCurrency && form.value.targetCurrency !== form.value.currency
 })
@@ -48,23 +62,16 @@ async function fetchRate() {
   if (!form.value.targetCurrency || form.value.targetCurrency === form.value.currency) {
     currentRate.value = null
     estimatedAmount.value = null
-    feeAmount.value = null
+    feeAmount.value = form.value.amount ? form.value.amount * 0.001 : null
     return
   }
 
   rateLoading.value = true
   try {
-    if (PREVIEW_MODE) {
-      // 使用模拟汇率
-      const rateKey = `${form.value.currency}_${form.value.targetCurrency}` as keyof typeof mockExchangeRate
-      currentRate.value = mockExchangeRate[rateKey] || 0.14
+    const res = await paymentApi.getRate(form.value.currency, form.value.targetCurrency)
+    if (res.code === 200 && res.data) {
+      currentRate.value = res.data
       calculateEstimate()
-    } else {
-      const res = await paymentApi.getRate(form.value.currency, form.value.targetCurrency)
-      if (res.code === 200 && res.data) {
-        currentRate.value = res.data
-        calculateEstimate()
-      }
     }
   } catch {
     ElMessage.error('获取汇率失败')
@@ -81,7 +88,7 @@ function calculateEstimate() {
     return
   }
   estimatedAmount.value = form.value.amount * currentRate.value
-  feeAmount.value = estimatedAmount.value * 0.001
+  feeAmount.value = form.value.amount * 0.001
 }
 
 // 监听货币变化
@@ -92,6 +99,8 @@ watch([() => form.value.currency, () => form.value.targetCurrency], () => {
 watch(() => form.value.amount, () => {
   if (currentRate.value) {
     calculateEstimate()
+  } else {
+    feeAmount.value = form.value.amount ? form.value.amount * 0.001 : null
   }
 })
 
@@ -105,37 +114,44 @@ async function submitPayment() {
     ElMessage.warning('请输入有效金额')
     return
   }
+  if (!form.value.beneficiaryName.trim()) {
+    ElMessage.warning('请输入受益人姓名')
+    return
+  }
+  if (form.value.sourceCountry === form.value.targetCountry) {
+    ElMessage.warning('汇出地和收款地不能相同')
+    return
+  }
 
   loading.value = true
   try {
-    if (PREVIEW_MODE) {
-      // 模拟创建订单
-      createdOrder.value = {
-        orderNo: 'TX' + Date.now(),
-        payeeDid: form.value.payeeDid,
-        amount: form.value.amount,
-        currency: form.value.currency,
-        exchangeRate: currentRate.value,
-        feeAmount: form.value.amount * 0.001
-      } as any
-      showConfirm.value = true
-    } else {
-      const checkRes = await didApi.check(form.value.payeeDid)
-      if (checkRes.code !== 200 || !checkRes.data) {
-        ElMessage.error('收款人DID无效')
-        return
-      }
+    const checkRes = await didApi.check(form.value.payeeDid)
+    if (checkRes.code !== 200 || !checkRes.data) {
+      ElMessage.error('收款人DID无效')
+      return
+    }
 
-      const res = await paymentApi.createOrder({
-        payeeDid: form.value.payeeDid,
-        amount: form.value.amount,
-        currency: form.value.currency,
-        targetCurrency: form.value.targetCurrency || undefined
-      })
+    const res = await paymentApi.createOrder({
+      payeeDid: form.value.payeeDid,
+      amount: form.value.amount,
+      currency: form.value.currency,
+      targetCurrency: form.value.targetCurrency || undefined,
+      sourceCountry: form.value.sourceCountry,
+      targetCountry: form.value.targetCountry,
+      beneficiaryName: form.value.beneficiaryName,
+      paymentPurpose: form.value.paymentPurpose,
+      description: form.value.description || undefined,
+    })
 
-      if (res.code === 200 && res.data) {
-        createdOrder.value = res.data
+    if (res.code === 200 && res.data) {
+      createdOrder.value = res.data
+      complianceMessage.value = res.data.complianceReasons
+      if (res.data.status === 'PENDING') {
         showConfirm.value = true
+      } else if (res.data.status === 'COMPLIANCE_REVIEW') {
+        ElMessage.warning('订单已进入人工合规复核队列')
+      } else {
+        ElMessage.error(`合规规则拒绝：${res.data.complianceReasons}`)
       }
     }
   } catch (error: any) {
@@ -151,19 +167,37 @@ async function executePayment() {
 
   loading.value = true
   try {
-    if (PREVIEW_MODE) {
-      // 模拟支付成功
+    const res = await paymentApi.execute(createdOrder.value.orderNo)
+    if (res.code === 200) {
       showConfirm.value = false
       showSuccess.value = true
-    } else {
-      const res = await paymentApi.execute(createdOrder.value.orderNo)
-      if (res.code === 200) {
-        showConfirm.value = false
-        showSuccess.value = true
-      }
     }
   } catch (error: any) {
     ElMessage.error(error.message || '支付失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function refreshReviewStatus() {
+  if (!createdOrder.value) return
+  loading.value = true
+  try {
+    const res = await paymentApi.getOrder(createdOrder.value.orderNo)
+    if (res.code === 200 && res.data) {
+      createdOrder.value = res.data
+      complianceMessage.value = res.data.complianceReasons
+      if (res.data.status === 'PENDING') {
+        ElMessage.success('订单已通过人工复核，请确认支付')
+        showConfirm.value = true
+      } else if (res.data.status === 'COMPLIANCE_REJECTED') {
+        ElMessage.error(`订单已被拒绝：${res.data.complianceReasons}`)
+      } else {
+        ElMessage.info('订单仍在人工复核中')
+      }
+    }
+  } catch (error: any) {
+    ElMessage.error(error.message || '查询复核状态失败')
   } finally {
     loading.value = false
   }
@@ -176,6 +210,10 @@ function resetForm() {
     amount: null,
     currency: 'CNY',
     targetCurrency: '',
+    sourceCountry: 'CN',
+    targetCountry: 'SG',
+    beneficiaryName: '',
+    paymentPurpose: 'GOODS_SERVICES',
     description: ''
   }
   currentRate.value = null
@@ -183,6 +221,7 @@ function resetForm() {
   feeAmount.value = null
   createdOrder.value = null
   showSuccess.value = false
+  complianceMessage.value = ''
 }
 
 // 获取货币符号
@@ -204,22 +243,23 @@ function getFlag(currency: string) {
       <div class="header-content">
         <h1>
           <el-icon class="title-icon"><Position /></el-icon>
-          跨境支付
+          跨境合规支付原型
         </h1>
-        <p>安全、便捷的区块链跨境转账</p>
+        <p>DID 身份门控、跨境走廊、支付用途、风险决策与人工复核的可运行原型</p>
       </div>
       <div class="header-features">
         <div class="feature">
           <el-icon><Lock /></el-icon>
           <span>DID验证</span>
         </div>
+
         <div class="feature">
           <el-icon><Timer /></el-icon>
-          <span>实时汇率</span>
+          <span>配置汇率</span>
         </div>
         <div class="feature">
           <el-icon><CircleCheck /></el-icon>
-          <span>链上记录</span>
+          <span>数据库原子记账</span>
         </div>
       </div>
     </div>
@@ -245,7 +285,35 @@ function getFlag(currency: string) {
               </template>
             </el-input>
           </div>
-          <p class="input-hint">DID是收款人在区块链上的唯一身份标识</p>
+          <p class="input-hint">DID 是 ChainPass 本地注册表中的收款人标识</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label><span class="label-text">汇出国家或地区</span><span class="label-required">*</span></label>
+            <el-select v-model="form.sourceCountry" size="large" style="width: 100%">
+              <el-option v-for="opt in countryOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
+            </el-select>
+          </div>
+          <div class="form-group">
+            <label><span class="label-text">收款国家或地区</span><span class="label-required">*</span></label>
+            <el-select v-model="form.targetCountry" size="large" style="width: 100%">
+              <el-option v-for="opt in countryOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
+            </el-select>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label><span class="label-text">受益人姓名</span><span class="label-required">*</span></label>
+            <el-input v-model="form.beneficiaryName" size="large" maxlength="100" placeholder="与收款身份资料一致" />
+          </div>
+          <div class="form-group">
+            <label><span class="label-text">支付用途</span><span class="label-required">*</span></label>
+            <el-select v-model="form.paymentPurpose" size="large" style="width: 100%">
+              <el-option v-for="opt in purposeOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
+            </el-select>
+          </div>
         </div>
 
         <!-- 金额输入 -->
@@ -330,7 +398,7 @@ function getFlag(currency: string) {
             <div class="rate-row">
               <span class="rate-label">手续费</span>
               <span class="rate-value small">
-                {{ getSymbol(form.targetCurrency || '') }} {{ feeAmount?.toFixed(4) }} (0.1%)
+                {{ getSymbol(form.currency) }} {{ feeAmount?.toFixed(form.currency === 'ETH' ? 8 : 2) }} (0.1%)
               </span>
             </div>
           </div>
@@ -354,9 +422,21 @@ function getFlag(currency: string) {
         <div class="form-actions">
           <el-button type="primary" size="large" :loading="loading" @click="submitPayment">
             <el-icon><Position /></el-icon>
-            创建支付订单
+            提交合规预检
           </el-button>
         </div>
+
+        <el-alert
+          v-if="createdOrder?.status === 'COMPLIANCE_REVIEW'"
+          type="warning"
+          :closable="false"
+          show-icon
+          class="review-alert"
+        >
+          <template #title>订单 {{ createdOrder.orderNo }} 正在人工复核</template>
+          <p>{{ complianceMessage }}</p>
+          <el-button size="small" :loading="loading" @click="refreshReviewStatus">刷新复核状态</el-button>
+        </el-alert>
       </div>
 
       <!-- 侧边信息 -->
@@ -367,9 +447,9 @@ function getFlag(currency: string) {
             安全保障
           </h4>
           <ul>
-            <li>DID身份验证确保收款人真实有效</li>
-            <li>所有交易记录上链存证</li>
-            <li>符合国际反洗钱合规要求</li>
+            <li>付款方必须持有有效人工审核结论</li>
+            <li>规则引擎输出可解释风险分数和命中原因</li>
+            <li>中风险订单进入授权审核员人工复核</li>
           </ul>
         </div>
 
@@ -379,9 +459,9 @@ function getFlag(currency: string) {
             交易时间
           </h4>
           <ul>
-            <li>实时汇率结算</li>
-            <li>7×24小时服务</li>
-            <li>通常几分钟内到账</li>
+            <li>按配置汇率换算</li>
+            <li>低风险订单可立即进入沙盒记账</li>
+            <li>人工复核订单需等待审核员处理</li>
           </ul>
         </div>
 
@@ -391,9 +471,9 @@ function getFlag(currency: string) {
             手续费说明
           </h4>
           <ul>
-            <li>跨境支付手续费: 0.1%</li>
-            <li>最低手续费: ¥1</li>
-            <li>汇率来源: 实时市场汇率</li>
+            <li>沙盒账本手续费: 0.1%</li>
+            <li>无最低手续费</li>
+            <li>汇率来源: 管理员配置的沙盒汇率</li>
           </ul>
         </div>
       </div>
@@ -430,13 +510,13 @@ function getFlag(currency: string) {
           </div>
           <div class="detail-row" v-if="createdOrder.feeAmount">
             <span class="detail-label">手续费</span>
-            <span class="detail-value">{{ getSymbol(createdOrder.currency) }} {{ createdOrder.feeAmount }}</span>
+            <span class="detail-value">{{ getSymbol(createdOrder.originalCurrency) }} {{ createdOrder.feeAmount }}</span>
           </div>
         </div>
 
         <el-alert type="warning" :closable="false" show-icon>
           <template #title>
-            此为模拟支付，确认后将直接完成转账
+            此操作只转移测试额度；确认后由数据库事务原子记账
           </template>
         </el-alert>
       </div>
@@ -463,7 +543,7 @@ function getFlag(currency: string) {
           <el-icon :size="48"><CircleCheck /></el-icon>
         </div>
         <h2>支付成功！</h2>
-        <p>您的跨境支付已提交处理</p>
+        <p>您的跨境支付原型订单已完成内部记账</p>
         <div class="success-actions">
           <el-button size="large" @click="resetForm">继续转账</el-button>
           <el-button type="primary" size="large" @click="$router.push('/payment/history')">
@@ -550,6 +630,18 @@ function getFlag(currency: string) {
   border-radius: 20px;
   padding: 32px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .form-group {

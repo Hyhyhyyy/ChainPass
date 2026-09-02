@@ -36,6 +36,9 @@ class VCServiceTest {
     @Mock
     private DIDService didService;
 
+    @Mock
+    private IssuerKeyService issuerKeyService;
+
     @InjectMocks
     private VCService vcService;
 
@@ -61,7 +64,10 @@ class VCServiceTest {
         // Given
         when(didService.isValidDID(issueRequest.getHolderDid())).thenReturn(true);
         when(vcTypeMapper.findByTypeCode("KYCCredential")).thenReturn(vcType);
-        when(vcRecordMapper.insert(any())).thenReturn(1);
+        when(issuerKeyService.isKeyValid()).thenReturn(true);
+        when(issuerKeyService.sign(anyString())).thenReturn("test-signature");
+        when(issuerKeyService.getVerificationMethodId()).thenReturn("did:chainpass:issuer#key-1");
+        when(vcRecordMapper.insert(any(VCRecord.class))).thenReturn(1);
 
         // When
         var credential = vcService.issueCredential(issueRequest);
@@ -73,7 +79,7 @@ class VCServiceTest {
         assertTrue(credential.getType().contains("KYCCredential"));
         assertNotNull(credential.getProof());
 
-        verify(vcRecordMapper, times(1)).insert(any());
+        verify(vcRecordMapper, times(1)).insert(any(VCRecord.class));
     }
 
     @Test

@@ -30,7 +30,7 @@ public class IssuerKeyService {
 
     private final RedisCache redisCache;
 
-    @Value("${chainpass.issuer.key-secret:chainpass-issuer-key-secret-change-me}")
+    @Value("${chainpass.issuer.key-secret}")
     private String keySecret;
 
     // 密钥在Redis中的存储key

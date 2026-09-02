@@ -19,12 +19,12 @@ public class Transaction {
     private String orderNo;
 
     /**
-     * 区块链交易哈希(预留)
+     * 内部交易标识
      */
     private String txHash;
 
     /**
-     * 支付网关: wallet/mock/stripe/alipay/crypto
+     * 处理通道: internal-ledger
      */
     private String gateway;
 

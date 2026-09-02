@@ -14,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.List;
+import java.text.Normalizer;
+import java.util.Locale;
 
 /**
  * KYC服务 - 身份认证核心服务
@@ -72,10 +75,7 @@ public class KYCService {
             kycMapper.insert(record);
         }
 
-        // 模拟自动审核通过
-        approveKYC(record.getId(), userId);
-
-        log.info("KYC submitted and auto-approved for user: {}", userId);
+        log.info("KYC submitted for manual/provider review: {}", userId);
         return record;
     }
 
@@ -87,8 +87,8 @@ public class KYCService {
         log.info("Approving KYC: {}", kycId);
 
         KYCRecord record = kycMapper.selectById(kycId);
-        if (record == null) {
-            throw new BusinessException("KYC记录不存在");
+        if (record == null || record.getVerificationStatus() != 1) {
+            throw new BusinessException("KYC记录不存在或不在审核中");
         }
 
         // 更新状态
@@ -102,11 +102,12 @@ public class KYCService {
         VCDto.IssueVCRequest vcRequest = new VCDto.IssueVCRequest();
         vcRequest.setHolderDid(record.getDid());
         vcRequest.setVcType("KYCCredential");
+        // 数据最小化：凭证只证明审核结论，不复制姓名、证件号或国籍。
         vcRequest.setClaims(Map.of(
-            "level", record.getKycLevel(),
+            "assuranceLevel", record.getKycLevel(),
             "verifiedAt", record.getVerifiedAt().toString(),
-            "nationality", record.getNationality(),
-            "expiresAt", record.getExpiresAt().toString()
+            "validUntil", record.getExpiresAt().toString(),
+            "verificationPolicy", "chainpass-manual-review-v1"
         ));
 
         var vc = vcService.issueCredential(vcRequest);
@@ -115,6 +116,23 @@ public class KYCService {
         kycMapper.updateById(record);
 
         log.info("KYC approved and VC issued: {}", kycId);
+    }
+
+    /** 拒绝KYC。审核操作只由具有compliance:kyc:audit权限的控制器调用。 */
+    @Transactional
+    public void rejectKYC(Long kycId, Long reviewerId, String reason) {
+        if (reason == null || reason.isBlank()) {
+            throw new BusinessException("拒绝原因不能为空");
+        }
+        KYCRecord record = kycMapper.selectById(kycId);
+        if (record == null || record.getVerificationStatus() != 1) {
+            throw new BusinessException("KYC记录不存在或不在审核中");
+        }
+        record.setVerificationStatus(3);
+        record.setVerifiedBy(reviewerId);
+        record.setRejectReason(reason.trim());
+        record.setUpdatedAt(Instant.now());
+        kycMapper.updateById(record);
     }
 
     /**
@@ -170,7 +188,62 @@ public class KYCService {
      */
     public boolean isKYCVerified(Long userId) {
         KYCRecord record = kycMapper.findByUserId(userId);
-        return record != null && record.getVerificationStatus() == 2;
+        return isApprovedAndCurrent(record);
+    }
+
+    public boolean isDIDKYCVerified(String did) {
+        return isApprovedAndCurrent(kycMapper.findByDid(did));
+    }
+
+    /**
+     * 将订单受益人姓名与已审核姓名做保守的规范化精确匹配。
+     * 这不是模糊人名识别；不一致时只能触发人工复核，不能证明欺诈。
+     */
+    public boolean isBeneficiaryNameConsistent(String did, String beneficiaryName) {
+        KYCRecord record = kycMapper.findByDid(did);
+        if (!isApprovedAndCurrent(record) || beneficiaryName == null) {
+            return false;
+        }
+        return normalizeName(record.getFullName()).equals(normalizeName(beneficiaryName));
+    }
+
+    private String normalizeName(String value) {
+        return Normalizer.normalize(value == null ? "" : value, Normalizer.Form.NFKC)
+            .replaceAll("[\\s·・.'’-]", "")
+            .toUpperCase(Locale.ROOT);
+    }
+
+    private boolean isApprovedAndCurrent(KYCRecord record) {
+        return record != null && record.getVerificationStatus() == 2
+            && record.getExpiresAt() != null && record.getExpiresAt().isAfter(Instant.now());
+    }
+
+    public List<KYCDto.KYCReviewResponse> getReviewQueue(Integer status) {
+        if (status == null || status < 1 || status > 3) {
+            throw new BusinessException("审核状态必须是1、2或3");
+        }
+        return kycMapper.findByStatus(status).stream().map(this::toReviewResponse).toList();
+    }
+
+    public KYCDto.KYCReviewResponse getReviewSubmission(Long id) {
+        KYCRecord record = kycMapper.selectById(id);
+        if (record == null) {
+            throw new BusinessException("KYC记录不存在");
+        }
+        return toReviewResponse(record);
+    }
+
+    private KYCDto.KYCReviewResponse toReviewResponse(KYCRecord record) {
+        KYCDto.KYCReviewResponse response = new KYCDto.KYCReviewResponse();
+        response.setId(record.getId());
+        response.setDid(record.getDid());
+        response.setFullName(record.getFullName());
+        response.setNationality(record.getNationality());
+        response.setIdType(record.getIdType());
+        response.setIdNumber(record.getIdNumber());
+        response.setStatus(getStatusText(record.getVerificationStatus()));
+        response.setSubmittedAt(record.getSubmittedAt() == null ? null : record.getSubmittedAt().toString());
+        return response;
     }
 
     private String getStatusText(Integer status) {

@@ -6,10 +6,6 @@ import {
   Position, Document, Right, Plus, CopyDocument, Lock
 } from '@element-plus/icons-vue'
 import { paymentApi, type Wallet as WalletType, type TransactionHistory } from '@/api/payment'
-import { mockWallet, mockTransactions } from '@/mock/previewData'
-
-// 预览模式
-const PREVIEW_MODE = true
 
 // 状态
 const loading = ref(false)
@@ -51,13 +47,9 @@ const balanceItems = computed(() => {
 async function fetchWallet() {
   loading.value = true
   try {
-    if (PREVIEW_MODE) {
-      wallet.value = mockWallet as any
-    } else {
-      const res = await paymentApi.getWallet()
-      if (res.code === 200 && res.data) {
-        wallet.value = res.data
-      }
+    const res = await paymentApi.getWallet()
+    if (res.code === 200 && res.data) {
+      wallet.value = res.data
     }
   } catch (error: any) {
     if (error.message !== '请先创建DID') {
@@ -71,13 +63,9 @@ async function fetchWallet() {
 // 获取交易历史
 async function fetchHistory() {
   try {
-    if (PREVIEW_MODE) {
-      transactions.value = mockTransactions as any
-    } else {
-      const res = await paymentApi.getHistory()
-      if (res.code === 200) {
-        transactions.value = res.data || []
-      }
+    const res = await paymentApi.getHistory()
+    if (res.code === 200) {
+      transactions.value = res.data || []
     }
   } catch {
     transactions.value = []
@@ -183,7 +171,7 @@ onMounted(() => {
               <span class="total-label">总资产估值</span>
               <span class="total-value">¥ {{ wallet.totalBalanceCny?.toFixed(2) || '0.00' }}</span>
             </div>
-            <p class="total-hint">* 按实时汇率折算为人民币</p>
+            <p class="total-hint">* 按数据库配置汇率折算，仅为沙盒估值</p>
           </div>
         </div>
 
@@ -193,7 +181,7 @@ onMounted(() => {
             <div class="action-icon send">
               <el-icon><Position /></el-icon>
             </div>
-            <span>跨境支付</span>
+            <span>跨境合规支付</span>
           </div>
           <div class="action-item" @click="$router.push('/payment/history')">
             <div class="action-icon history">
@@ -274,20 +262,20 @@ onMounted(() => {
             <el-icon><Lock /></el-icon>
           </div>
           <h4>安全存储</h4>
-          <p>资产由区块链技术保护</p>
+          <p>余额由数据库事务和乐观锁保护</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <el-icon><Refresh /></el-icon>
           </div>
-          <h4>实时汇率</h4>
+          <h4>配置汇率</h4>
           <p>支持多币种实时兑换</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">
             <el-icon><Position /></el-icon>
           </div>
-          <h4>跨境支付</h4>
+          <h4>多币种沙盒</h4>
           <p>便捷的国际转账服务</p>
         </div>
         <div class="feature-card">
@@ -295,7 +283,7 @@ onMounted(() => {
             <el-icon><Document /></el-icon>
           </div>
           <h4>透明记录</h4>
-          <p>所有交易链上可查</p>
+          <p>所有转账保存在本地交易表中</p>
         </div>
       </div>
     </div>

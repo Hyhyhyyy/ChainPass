@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock, Message, Phone } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { authApi } from '@/api'
 
 const router = useRouter()
 
@@ -25,7 +26,8 @@ const rules: FormRules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 32, message: '密码长度为 6-32 个字符', trigger: 'blur' },
+    { min: 8, max: 64, message: '密码长度为 8-64 个字符', trigger: 'blur' },
+    { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, message: '密码必须包含大小写字母和数字', trigger: 'blur' },
   ],
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
@@ -50,8 +52,11 @@ async function handleRegister() {
 
     loading.value = true
     try {
-      // TODO: 调用注册API
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await authApi.register({
+        username: form.value.username,
+        password: form.value.password,
+        email: form.value.email || undefined,
+      })
       ElMessage.success('注册成功，请登录')
       router.push('/auth/login')
     } catch (error) {
@@ -76,7 +81,7 @@ async function handleRegister() {
           <img src="@/assets/logo.jpg" alt="ChainPass" />
         </div>
         <h1 class="title">创建账户</h1>
-        <p class="subtitle">加入 ChainPass，开启区块链身份之旅</p>
+        <p class="subtitle">加入 ChainPass，体验本地数字身份与签名凭证</p>
       </div>
 
       <!-- 注册表单 -->

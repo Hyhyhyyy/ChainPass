@@ -33,14 +33,29 @@ public class PaymentDto {
         private String currency;
 
         /**
-         * 目标货币（用于跨境支付）
+         * 目标记账单位（用于沙盒换算）
          */
         private String targetCurrency;
 
         /**
-         * 支付方式: wallet/mock
+         * 记账方式: wallet
          */
         private String paymentMethod = "wallet";
+
+        @NotBlank(message = "汇出国家或地区不能为空")
+        @Pattern(regexp = "^[A-Za-z]{2}$", message = "汇出国家或地区必须使用两位代码")
+        private String sourceCountry;
+
+        @NotBlank(message = "收款国家或地区不能为空")
+        @Pattern(regexp = "^[A-Za-z]{2}$", message = "收款国家或地区必须使用两位代码")
+        private String targetCountry;
+
+        @NotBlank(message = "受益人姓名不能为空")
+        @Size(max = 100, message = "受益人姓名不能超过100个字符")
+        private String beneficiaryName;
+
+        @NotBlank(message = "支付用途不能为空")
+        private String paymentPurpose;
 
         /**
          * 支付描述
@@ -65,6 +80,15 @@ public class PaymentDto {
         public String getPaymentMethod() { return paymentMethod; }
         public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
 
+        public String getSourceCountry() { return sourceCountry; }
+        public void setSourceCountry(String sourceCountry) { this.sourceCountry = sourceCountry; }
+        public String getTargetCountry() { return targetCountry; }
+        public void setTargetCountry(String targetCountry) { this.targetCountry = targetCountry; }
+        public String getBeneficiaryName() { return beneficiaryName; }
+        public void setBeneficiaryName(String beneficiaryName) { this.beneficiaryName = beneficiaryName; }
+        public String getPaymentPurpose() { return paymentPurpose; }
+        public void setPaymentPurpose(String paymentPurpose) { this.paymentPurpose = paymentPurpose; }
+
         public String getDescription() { return description; }
         public void setDescription(String description) { this.description = description; }
     }
@@ -85,6 +109,14 @@ public class PaymentDto {
         private String status;
         private String createdAt;
         private String paidAt;
+        private String sourceCountry;
+        private String targetCountry;
+        private String beneficiaryName;
+        private String paymentPurpose;
+        private Integer riskScore;
+        private String riskLevel;
+        private String complianceDecision;
+        private String complianceReasons;
 
         public PaymentOrderResponse() {}
 
@@ -124,6 +156,22 @@ public class PaymentDto {
 
         public String getPaidAt() { return paidAt; }
         public void setPaidAt(String paidAt) { this.paidAt = paidAt; }
+        public String getSourceCountry() { return sourceCountry; }
+        public void setSourceCountry(String sourceCountry) { this.sourceCountry = sourceCountry; }
+        public String getTargetCountry() { return targetCountry; }
+        public void setTargetCountry(String targetCountry) { this.targetCountry = targetCountry; }
+        public String getBeneficiaryName() { return beneficiaryName; }
+        public void setBeneficiaryName(String beneficiaryName) { this.beneficiaryName = beneficiaryName; }
+        public String getPaymentPurpose() { return paymentPurpose; }
+        public void setPaymentPurpose(String paymentPurpose) { this.paymentPurpose = paymentPurpose; }
+        public Integer getRiskScore() { return riskScore; }
+        public void setRiskScore(Integer riskScore) { this.riskScore = riskScore; }
+        public String getRiskLevel() { return riskLevel; }
+        public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; }
+        public String getComplianceDecision() { return complianceDecision; }
+        public void setComplianceDecision(String complianceDecision) { this.complianceDecision = complianceDecision; }
+        public String getComplianceReasons() { return complianceReasons; }
+        public void setComplianceReasons(String complianceReasons) { this.complianceReasons = complianceReasons; }
     }
 
     /**

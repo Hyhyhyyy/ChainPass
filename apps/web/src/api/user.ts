@@ -63,7 +63,7 @@ export const userApi = {
    * 修改用户状态
    */
   updateUserStatus: (id: number, status: number): Promise<ApiResponse<void>> =>
-    request.put(`/user/${id}/status`, { status }),
+    request.put(`/user/${id}/status`, undefined, { params: { status } }),
 
   /**
    * 重置用户密码
@@ -86,5 +86,5 @@ export const userApi = {
    * 修改密码
    */
   changePassword: (oldPassword: string, newPassword: string): Promise<ApiResponse<void>> =>
-    request.put('/user/current/password', { oldPassword, newPassword }),
+    request.put('/user/current/password', undefined, { params: { oldPassword, newPassword } }),
 }

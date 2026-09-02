@@ -1,7 +1,6 @@
 package com.chainpass.filter;
 
 import com.chainpass.entity.LoginUser;
-import com.chainpass.service.AuthService;
 import com.chainpass.util.JwtService;
 import com.chainpass.util.RedisCache;
 import jakarta.servlet.FilterChain;
@@ -18,7 +17,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,7 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final RedisCache redisCache;
     private final JwtService jwtService;
-    private final AuthService authService;
 
     @Override
     protected void doFilterInternal(
@@ -55,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             // 检查Token是否在黑名单中
-            if (authService.isTokenBlacklisted(token)) {
+            if (redisCache.hasKey("token:blacklist:" + token)) {
                 log.debug("Token is blacklisted");
                 filterChain.doFilter(request, response);
                 return;
@@ -66,24 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             LoginUser loginUser = redisCache.getCacheObject(redisKey);
 
             if (loginUser == null) {
-                // 检查是否是 ZKP 公钥认证
-                String publicKeyKey = "loginPublic:" + token;
-                String publicKeyStr = redisCache.getCacheObject(publicKeyKey);
-
-                if (publicKeyStr != null) {
-                    // ZKP 认证成功，创建认证对象
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(
-                                    publicKeyStr,
-                                    null,
-                                    List.of(() -> "ROLE_USER")
-                            );
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.debug("ZKP authentication successful");
-                } else {
-                    log.debug("Token not found in Redis: {}", token);
-                }
-
+                log.debug("Token not found in Redis: {}", token);
                 filterChain.doFilter(request, response);
                 return;
             }

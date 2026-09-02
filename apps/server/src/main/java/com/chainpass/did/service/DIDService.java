@@ -23,9 +23,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * DID服务 - 去中心化身份核心服务
- *
- * 实现W3C DID标准的身份创建、验证、管理功能
+ * W3C DID Core 概念启发的本地标识服务。
+ * did:chainpass 未注册为公共 DID method，解析与密钥托管均局限于本系统。
  * 支持私钥加密存储
  * 支持DID文档缓存
  */
@@ -38,7 +37,7 @@ public class DIDService {
     private final DIDMapper didMapper;
     private final RedisCache redisCache;
 
-    @Value("${chainpass.did.key-secret:chainpass-did-key-secret-change-me}")
+    @Value("${chainpass.did.key-secret}")
     private String keySecret;
 
     // DID缓存过期时间：5分钟
@@ -255,12 +254,12 @@ public class DIDService {
      * 吊销DID
      */
     @Transactional
-    public void revokeDID(String did, String reason) {
+    public void revokeDID(String did, Long userId, String reason) {
         log.info("Revoking DID: {}, reason: {}", did, reason);
 
-        int updated = didMapper.revokeDID(did, reason);
+        int updated = didMapper.revokeDID(did, userId, reason);
         if (updated == 0) {
-            throw new BusinessException("DID不存在或已被吊销");
+            throw new BusinessException("DID不存在、已被吊销或不属于当前用户");
         }
 
         // 清除缓存

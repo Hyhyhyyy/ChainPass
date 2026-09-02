@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 可验证凭证实体 - W3C VC标准
+ * VC Data Model 启发的本地签名凭证实体；不是完整的 W3C Data Integrity 实现。
  * 参考: https://www.w3.org/TR/vc-data-model/
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)

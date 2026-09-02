@@ -3,22 +3,18 @@ import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   DocumentChecked, Loading, CircleCheck, CircleClose,
-  Upload, Right, Lock, User, Location, Stamp,
+  Right, Lock, User, Location, Stamp,
   WarningFilled, SuccessFilled
 } from '@element-plus/icons-vue'
 import { kycApi, type KYCResponse, type KYCStatusResponse, ID_TYPE_OPTIONS, NATIONALITY_OPTIONS } from '@/api/kyc'
 import { didApi } from '@/api/did'
-import { mockKYCStatus, mockKYCDetail } from '@/mock/previewData'
-
-// 预览模式
-const PREVIEW_MODE = true
 
 // 状态
 const loading = ref(false)
 const submitting = ref(false)
 const kycStatus = ref<KYCStatusResponse | null>(null)
 const kycDetail = ref<KYCResponse | null>(null)
-const hasDID = ref(true)
+const hasDID = ref(false)
 const currentStep = ref(0)
 
 // 表单数据
@@ -26,9 +22,7 @@ const form = ref({
   fullName: '',
   nationality: '',
   idType: 'id_card',
-  idNumber: '',
-  idDocumentFront: '',
-  idDocumentBack: ''
+  idNumber: ''
 })
 
 // 计算属性
@@ -42,35 +36,15 @@ const kycLevels = [
   {
     level: 1,
     name: '基础认证',
-    desc: '姓名、国籍、证件信息验证',
-    features: ['跨境支付基础权限', '单笔限额 ¥5,000', '每日限额 ¥20,000'],
+    desc: '提交姓名、国籍和证件号码，由授权审核员人工复核',
+    features: ['人工审核', '通过后签发最小披露凭证', '不代表法定身份认证'],
     icon: Lock,
     color: '#3b82f6'
-  },
-  {
-    level: 2,
-    name: '中级认证',
-    desc: '增加人脸识别、地址验证',
-    features: ['提升支付限额', '单笔限额 ¥50,000', '每日限额 ¥200,000'],
-    icon: Stamp,
-    color: '#f59e0b'
-  },
-  {
-    level: 3,
-    name: '高级认证',
-    desc: '完整企业级认证',
-    features: ['无限制支付权限', '专属客服支持', '优先审核通道'],
-    icon: CircleCheck,
-    color: '#10b981'
   }
 ]
 
 // 检查DID状态
 async function checkDID() {
-  if (PREVIEW_MODE) {
-    hasDID.value = true
-    return
-  }
   try {
     const res = await didApi.getMy()
     hasDID.value = res.code === 200 && !!res.data
@@ -83,21 +57,16 @@ async function checkDID() {
 async function fetchKYCStatus() {
   loading.value = true
   try {
-    if (PREVIEW_MODE) {
-      kycStatus.value = mockKYCStatus as any
-      kycDetail.value = mockKYCDetail as any
-    } else {
-      const [statusRes, detailRes] = await Promise.all([
-        kycApi.getStatus(),
-        kycApi.getDetail()
-      ])
+    const [statusRes, detailRes] = await Promise.all([
+      kycApi.getStatus(),
+      kycApi.getDetail()
+    ])
 
-      if (statusRes.code === 200) {
-        kycStatus.value = statusRes.data
-      }
-      if (detailRes.code === 200) {
-        kycDetail.value = detailRes.data
-      }
+    if (statusRes.code === 200) {
+      kycStatus.value = statusRes.data
+    }
+    if (detailRes.code === 200) {
+      kycDetail.value = detailRes.data
     }
   } catch (error) {
     console.error('获取KYC状态失败:', error)
@@ -166,7 +135,7 @@ onMounted(() => {
           <el-icon class="title-icon"><Lock /></el-icon>
           KYC 身份认证
         </h1>
-        <p>完成身份认证，解锁跨境支付功能</p>
+        <p>人工审核演示：审核通过后签发不含姓名和证件号的结论凭证</p>
       </div>
     </div>
 
@@ -195,7 +164,7 @@ onMounted(() => {
           </div>
           <div class="status-text">
             <h2>{{ getStatusConfig().text }}</h2>
-            <p v-if="kycStatus?.kycLevelName">{{ kycStatus.kycLevelName }}</p>
+            <p v-if="kycDetail?.kycLevelName">{{ kycDetail.kycLevelName }}</p>
           </div>
         </div>
 
@@ -308,38 +277,6 @@ onMounted(() => {
             </el-form-item>
           </div>
 
-          <el-form-item label="证件照片">
-            <div class="upload-grid">
-              <div class="upload-box">
-                <el-upload
-                  class="uploader"
-                  action="#"
-                  :show-file-list="false"
-                  :auto-upload="false"
-                >
-                  <div class="upload-content">
-                    <el-icon class="upload-icon"><Upload /></el-icon>
-                    <span class="upload-text">上传证件正面</span>
-                  </div>
-                </el-upload>
-              </div>
-              <div class="upload-box">
-                <el-upload
-                  class="uploader"
-                  action="#"
-                  :show-file-list="false"
-                  :auto-upload="false"
-                >
-                  <div class="upload-content">
-                    <el-icon class="upload-icon"><Upload /></el-icon>
-                    <span class="upload-text">上传证件背面</span>
-                  </div>
-                </el-upload>
-              </div>
-            </div>
-            <p class="upload-hint">* 证件照片将加密存储，仅用于身份验证</p>
-          </el-form-item>
-
           <div class="form-actions">
             <el-button type="primary" size="large" :loading="submitting" @click="submitKYC">
               <el-icon><DocumentChecked /></el-icon>
@@ -356,9 +293,9 @@ onMounted(() => {
             <el-icon :size="48"><CircleCheck /></el-icon>
           </div>
           <h3>恭喜！您已完成KYC认证</h3>
-          <p>认证通过后已自动签发KYC凭证，可用于跨境支付权限验证</p>
+          <p>审核结论已签名并生成最小披露凭证；它不冒充外部KYC机构证明</p>
           <el-button type="primary" size="large" @click="$router.push('/payment/transfer')">
-            开始跨境支付
+            前往跨境合规支付
             <el-icon><Right /></el-icon>
           </el-button>
         </div>
@@ -383,7 +320,7 @@ onMounted(() => {
         </div>
         <div class="security-item">
           <el-icon><Lock /></el-icon>
-          <span>支持零知识证明验证</span>
+          <span>凭证不复制姓名、国籍或证件号码</span>
         </div>
       </div>
     </div>

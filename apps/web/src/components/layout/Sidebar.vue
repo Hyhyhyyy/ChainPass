@@ -2,10 +2,11 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores'
+import { useUserStore } from '@/stores/modules/user'
 import {
   Odometer, Key, Postcard, Tickets, Wallet, Position,
-  Document, User, Setting, UserFilled, Avatar,
-  Lock, Connection, Fold, Expand
+  Document, User, Setting, UserFilled,
+  Lock, Fold, Expand
 } from '@element-plus/icons-vue'
 
 interface Props {
@@ -18,6 +19,7 @@ defineProps<Props>()
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
+const userStore = useUserStore()
 
 // 菜单项
 const menuItems = [
@@ -44,7 +46,7 @@ const menuItems = [
     color: '#f59e0b',
     children: [
       { path: '/payment/wallet', icon: 'Wallet', title: '我的钱包' },
-      { path: '/payment/transfer', icon: 'Position', title: '跨境支付' },
+      { path: '/payment/transfer', icon: 'Position', title: '跨境合规支付' },
       { path: '/payment/history', icon: 'Document', title: '交易记录' },
     ],
   },
@@ -55,6 +57,8 @@ const menuItems = [
     color: '#10b981',
     children: [
       { path: '/compliance/kyc', icon: 'CircleCheck', title: 'KYC认证' },
+      { path: '/compliance/reviews', icon: 'Document', title: '人工审核', permission: 'compliance:kyc:audit' },
+      { path: '/compliance/payment-reviews', icon: 'Document', title: '支付复核', permission: 'compliance:payment:audit' },
     ],
   },
   {
@@ -69,14 +73,17 @@ const menuItems = [
     title: '系统管理',
     color: '#64748b',
     children: [
-      { path: '/system/users', icon: 'UserFilled', title: '用户管理' },
-      { path: '/system/roles', icon: 'Avatar', title: '角色管理' },
-      { path: '/system/permissions', icon: 'Lock', title: '权限管理' },
-      { path: '/system/oauth', icon: 'Connection', title: 'OAuth配置' },
-      { path: '/system/logs', icon: 'Document', title: '日志查询' },
+      { path: '/system/users', icon: 'UserFilled', title: '用户管理', permission: 'system:user:list' },
     ],
   },
 ]
+
+const visibleMenuItems = computed(() => menuItems
+  .map(item => ({
+    ...item,
+    children: item.children?.filter(child => !child.permission || userStore.hasPermission(child.permission))
+  }))
+  .filter(item => !item.children || item.children.length > 0))
 
 const activeMenu = computed(() => route.path)
 
@@ -109,7 +116,7 @@ function navigateTo(path: string) {
         router
         class="sidebar-menu"
       >
-        <template v-for="item in menuItems" :key="item.path">
+        <template v-for="item in visibleMenuItems" :key="item.path">
           <!-- 有子菜单 -->
           <el-sub-menu v-if="item.children" :index="item.path" :popper-class="'sidebar-popper'">
             <template #title>

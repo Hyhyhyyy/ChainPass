@@ -7,10 +7,6 @@ import {
   InfoFilled, SuccessFilled, WarningFilled
 } from '@element-plus/icons-vue'
 import { didApi, type DIDResponse } from '@/api/did'
-import { mockDID } from '@/mock/previewData'
-
-// 预览模式
-const PREVIEW_MODE = true
 
 // 状态
 const loading = ref(false)
@@ -21,16 +17,16 @@ const showDocument = ref(false)
 // 计算属性
 const hasDID = computed(() => !!didInfo.value)
 const statusConfig = computed(() => {
-  if (!didInfo.value) return { type: 'info', text: '未创建', icon: InfoFilled }
+  if (!didInfo.value) return { type: 'info' as const, text: '未创建', icon: InfoFilled }
   switch (didInfo.value.status) {
     case 'ACTIVE':
-      return { type: 'success', text: '已激活', icon: SuccessFilled }
+      return { type: 'success' as const, text: '已激活', icon: SuccessFilled }
     case 'SUSPENDED':
-      return { type: 'warning', text: '已停用', icon: WarningFilled }
+      return { type: 'warning' as const, text: '已停用', icon: WarningFilled }
     case 'REVOKED':
-      return { type: 'danger', text: '已吊销', icon: WarningFilled }
+      return { type: 'danger' as const, text: '已吊销', icon: WarningFilled }
     default:
-      return { type: 'info', text: '未知', icon: InfoFilled }
+      return { type: 'info' as const, text: '未知', icon: InfoFilled }
   }
 })
 
@@ -38,15 +34,11 @@ const statusConfig = computed(() => {
 async function fetchDID() {
   loading.value = true
   try {
-    if (PREVIEW_MODE) {
-      didInfo.value = mockDID as any
+    const res = await didApi.getMy()
+    if (res.code === 200 && res.data) {
+      didInfo.value = res.data
     } else {
-      const res = await didApi.getMy()
-      if (res.code === 200 && res.data) {
-        didInfo.value = res.data
-      } else {
-        didInfo.value = null
-      }
+      didInfo.value = null
     }
   } catch {
     didInfo.value = null
@@ -59,7 +51,7 @@ async function fetchDID() {
 async function createDID() {
   try {
     await ElMessageBox.confirm(
-      'DID是您在区块链上的唯一身份标识，创建后将永久关联您的账户。确定要创建吗？',
+      'DID是您在 ChainPass 本地注册表中的身份标识，创建后会关联当前账户。确定要创建吗？',
       '创建DID身份',
       {
         confirmButtonText: '确认创建',
@@ -119,7 +111,7 @@ onMounted(() => {
           <el-icon class="title-icon"><Key /></el-icon>
           DID 数字身份
         </h1>
-        <p>去中心化身份标识符，让您完全掌控自己的数字身份</p>
+        <p>ChainPass 本地身份标识符；密钥由本服务加密托管，可用于本系统签名验证</p>
       </div>
     </div>
 
@@ -145,7 +137,7 @@ onMounted(() => {
           </div>
           <div class="feature-item">
             <el-icon><Document /></el-icon>
-            <span>W3C标准</span>
+            <span>DID Core 数据结构参考</span>
           </div>
         </div>
 
@@ -248,7 +240,7 @@ onMounted(() => {
         <div class="section-header" @click="showDocument = !showDocument">
           <h3>
             <el-icon><Document /></el-icon>
-            DID文档 (W3C标准)
+            DID 文档（本地 did:chainpass 方法）
           </h3>
           <el-icon :class="{ rotated: showDocument }"><Right /></el-icon>
         </div>
@@ -300,7 +292,7 @@ onMounted(() => {
           </div>
           <div class="info-item-content">
             <h4>隐私保护</h4>
-            <p>支持零知识证明，验证身份无需暴露隐私</p>
+            <p>支持 Ed25519 挑战签名，验证私钥控制权</p>
           </div>
         </div>
         <div class="info-item">

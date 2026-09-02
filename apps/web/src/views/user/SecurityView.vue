@@ -2,16 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  Lock, Key, Monitor,
-  CircleCheck, CircleClose, Warning, Refresh,
-  Edit, View
+  Lock, Key, Edit
 } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
 import { didApi } from '@/api/did'
-import { mockDID, mockDevices } from '@/mock/previewData'
-
-// 预览模式
-const PREVIEW_MODE = true
+import { userApi } from '@/api'
 
 const userStore = useUserStore()
 
@@ -25,29 +20,12 @@ const passwordForm = ref({
   confirmPassword: ''
 })
 
-// 安全设置状态
-const securitySettings = ref({
-  twoFactorEnabled: false,
-  zkpAuthEnabled: true,
-  didAuthEnabled: false,
-  sessionTimeout: 30
-})
-
-// 登录设备列表
-const devices = ref(mockDevices)
-
 // 获取DID信息
 async function fetchDIDInfo() {
   try {
-    if (PREVIEW_MODE) {
-      didInfo.value = mockDID as any
-      securitySettings.value.didAuthEnabled = mockDID.status === 'ACTIVE'
-    } else {
-      const res = await didApi.getMy()
-      if (res.code === 200 && res.data) {
-        didInfo.value = res.data
-        securitySettings.value.didAuthEnabled = res.data.status === 'ACTIVE'
-      }
+    const res = await didApi.getMy()
+    if (res.code === 200 && res.data) {
+      didInfo.value = res.data
     }
   } catch {
     didInfo.value = null
@@ -69,67 +47,13 @@ async function changePassword() {
     await ElMessageBox.confirm('确认修改密码？修改后需要重新登录。', '修改密码', {
       type: 'warning'
     })
+    await userApi.changePassword(passwordForm.value.oldPassword, passwordForm.value.newPassword)
     ElMessage.success('密码已修改，请重新登录')
     showPasswordDialog.value = false
-    // TODO: 实际调用API修改密码
+    await userStore.logout()
   } catch {
     // 取消
   }
-}
-
-// 启用/禁用DID认证
-async function toggleDIDAuth() {
-  if (!didInfo.value) {
-    ElMessage.warning('请先创建DID身份')
-    return
-  }
-
-  try {
-    const action = securitySettings.value.didAuthEnabled ? '禁用' : '启用'
-    await ElMessageBox.confirm(`确认${action}DID认证登录？`, `${action}DID认证`, {
-      type: 'info'
-    })
-    securitySettings.value.didAuthEnabled = !securitySettings.value.didAuthEnabled
-    ElMessage.success(`DID认证已${action}`)
-  } catch {
-    // 取消
-  }
-}
-
-// 启用/禁用ZKP认证
-async function toggleZKPAuth() {
-  try {
-    const action = securitySettings.value.zkpAuthEnabled ? '禁用' : '启用'
-    await ElMessageBox.confirm(`确认${action}零知识证明认证？`, `${action}ZKP认证`, {
-      type: 'info'
-    })
-    securitySettings.value.zkpAuthEnabled = !securitySettings.value.zkpAuthEnabled
-    ElMessage.success(`ZKP认证已${action}`)
-  } catch {
-    // 取消
-  }
-}
-
-// 移除设备
-async function removeDevice(deviceId: number) {
-  try {
-    await ElMessageBox.confirm('确认移除该设备？移除后该设备需要重新登录。', '移除设备', {
-      type: 'warning'
-    })
-    devices.value = devices.value.filter(d => d.id !== deviceId)
-    ElMessage.success('设备已移除')
-  } catch {
-    // 取消
-  }
-}
-
-// 检查DID签名
-async function verifyDIDSignature() {
-  if (!didInfo.value) {
-    ElMessage.warning('请先创建DID')
-    return
-  }
-  ElMessage.success('DID签名验证成功')
 }
 
 onMounted(() => {
@@ -154,33 +78,6 @@ onMounted(() => {
       </template>
 
       <div class="auth-content">
-        <div class="auth-item">
-          <div class="auth-info">
-            <h4>DID 认证登录</h4>
-            <p>使用DID身份进行安全登录验证</p>
-          </div>
-          <el-switch
-            v-model="securitySettings.didAuthEnabled"
-            :disabled="!didInfo"
-            @change="toggleDIDAuth"
-          />
-        </div>
-
-        <el-divider />
-
-        <div class="auth-item">
-          <div class="auth-info">
-            <h4>零知识证明 (ZKP) 认证</h4>
-            <p>在验证身份的同时保护您的隐私信息</p>
-          </div>
-          <el-switch
-            v-model="securitySettings.zkpAuthEnabled"
-            @change="toggleZKPAuth"
-          />
-        </div>
-
-        <el-divider />
-
         <div class="did-status" v-if="didInfo">
           <el-descriptions :column="2" border size="small">
             <el-descriptions-item label="DID状态">
@@ -190,9 +87,6 @@ onMounted(() => {
             </el-descriptions-item>
             <el-descriptions-item label="签名算法">Ed25519</el-descriptions-item>
           </el-descriptions>
-          <el-button type="primary" link :icon="Key" @click="verifyDIDSignature">
-            验证DID签名
-          </el-button>
         </div>
         <el-alert v-else type="info" :closable="false" show-icon>
           请先创建DID身份以启用DID认证功能
@@ -238,82 +132,6 @@ onMounted(() => {
           </el-alert>
         </div>
       </div>
-    </el-card>
-
-    <!-- 登录设备管理 -->
-    <el-card class="devices-card">
-      <template #header>
-        <div class="card-header">
-          <span>
-            <el-icon><Monitor /></el-icon>
-            登录设备管理
-          </span>
-          <el-button link type="danger">移除所有其他设备</el-button>
-        </div>
-      </template>
-
-      <div class="devices-list">
-        <div v-for="device in devices" :key="device.id" class="device-item">
-          <div class="device-icon">
-            <el-icon :size="24"><Monitor /></el-icon>
-          </div>
-          <div class="device-info">
-            <div class="device-name">
-              {{ device.name }}
-              <el-tag v-if="device.current" type="success" size="small">当前设备</el-tag>
-            </div>
-            <div class="device-meta">
-              <span>{{ device.location }}</span>
-              <span>最后活跃: {{ device.lastActive }}</span>
-            </div>
-          </div>
-          <el-button
-            v-if="!device.current"
-            type="danger"
-            link
-            :icon="CircleClose"
-            @click="removeDevice(device.id)"
-          >
-            移除
-          </el-button>
-        </div>
-      </div>
-    </el-card>
-
-    <!-- 安全日志 -->
-    <el-card class="logs-card">
-      <template #header>
-        <div class="card-header">
-          <span>
-            <el-icon><View /></el-icon>
-            安全事件记录
-          </span>
-          <el-button link @click="$router.push('/user/logs')">
-            查看全部日志
-          </el-button>
-        </div>
-      </template>
-
-      <el-timeline>
-        <el-timeline-item type="success" timestamp="2026-04-01 10:30">
-          <el-card shadow="never">
-            <h4>登录成功</h4>
-            <p>通过DID认证登录，设备: Windows PC</p>
-          </el-card>
-        </el-timeline-item>
-        <el-timeline-item type="warning" timestamp="2026-03-30 14:20">
-          <el-card shadow="never">
-            <h4>密码修改</h4>
-            <p>成功修改登录密码</p>
-          </el-card>
-        </el-timeline-item>
-        <el-timeline-item type="primary" timestamp="2026-03-28 09:15">
-          <el-card shadow="never">
-            <h4>DID创建</h4>
-            <p>成功创建DID身份标识</p>
-          </el-card>
-        </el-timeline-item>
-      </el-timeline>
     </el-card>
 
     <!-- 修改密码对话框 -->

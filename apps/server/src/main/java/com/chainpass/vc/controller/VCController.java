@@ -31,20 +31,6 @@ public class VCController {
     private final com.chainpass.did.service.DIDService didService;
 
     /**
-     * 签发凭证
-     */
-    @PostMapping("/issue")
-    @Operation(summary = "签发凭证", description = "为指定DID签发可验证凭证")
-    public ApiResponse<VerifiableCredential> issueVC(
-            @AuthenticationPrincipal LoginUser loginUser,
-            @Valid @RequestBody VCDto.IssueVCRequest request) {
-
-        log.info("Issuing VC for user: {}, type: {}", loginUser.getUserId(), request.getVcType());
-        VerifiableCredential vc = vcService.issueCredential(request);
-        return ApiResponse.success(vc);
-    }
-
-    /**
      * 验证凭证
      */
     @PostMapping("/verify")
@@ -69,41 +55,6 @@ public class VCController {
 
         List<VCDto.VCResponse> vcs = vcService.getVCListByHolder(did);
         return ApiResponse.success(vcs);
-    }
-
-    /**
-     * 根据DID获取凭证列表
-     */
-    @GetMapping("/list/{did}")
-    @Operation(summary = "获取DID的凭证", description = "获取指定DID的所有可验证凭证")
-    public ApiResponse<List<VCDto.VCResponse>> getVCsByDID(@PathVariable String did) {
-        List<VCDto.VCResponse> vcs = vcService.getVCListByHolder(did);
-        return ApiResponse.success(vcs);
-    }
-
-    /**
-     * 根据VC ID获取凭证详情
-     */
-    @GetMapping("/{vcId}")
-    @Operation(summary = "获取凭证详情", description = "根据VC ID获取凭证详细信息")
-    public ApiResponse<VCDto.VCResponse> getVC(@PathVariable String vcId) {
-        // 这里需要实现单独获取VC的方法
-        return ApiResponse.error("功能开发中");
-    }
-
-    /**
-     * 吊销凭证
-     */
-    @PostMapping("/revoke/{vcId}")
-    @Operation(summary = "吊销凭证", description = "吊销指定的可验证凭证")
-    public ApiResponse<Void> revokeVC(
-            @AuthenticationPrincipal LoginUser loginUser,
-            @PathVariable String vcId,
-            @RequestParam(required = false, defaultValue = "用户主动吊销") String reason) {
-
-        log.info("Revoking VC: {} by user: {}", vcId, loginUser.getUserId());
-        vcService.revokeCredential(vcId, reason);
-        return ApiResponse.success();
     }
 
     /**

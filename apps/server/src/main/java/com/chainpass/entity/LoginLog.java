@@ -17,7 +17,7 @@ public class LoginLog {
 
     private String username;
 
-    private String loginType; // password, oauth, zkp
+    private String loginType; // password
 
     private String ip;
 

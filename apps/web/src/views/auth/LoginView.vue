@@ -2,10 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock, Promotion, Key, InfoFilled } from '@element-plus/icons-vue'
+import { User, Lock } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
 import type { FormInstance, FormRules } from 'element-plus'
-import QRLogin from '@/components/business/QRLogin.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -13,7 +12,7 @@ const userStore = useUserStore()
 
 const formRef = ref<FormInstance>()
 const loading = ref(false)
-const activeTab = ref<'password' | 'qr' | 'oauth'>('password')
+const activeTab = ref<'password'>('password')
 
 const loginForm = ref({
   username: '',
@@ -60,23 +59,6 @@ async function handleLogin() {
   })
 }
 
-async function handleGiteeLogin() {
-  try {
-    await userStore.giteeLogin()
-  } catch (error) {
-    ElMessage.error('获取 OAuth 配置失败')
-  }
-}
-
-function handleZKPLogin() {
-  router.push('/auth/zkp-verify')
-}
-
-function handleQRLoginSuccess(data: any) {
-  const redirect = route.query.redirect as string
-  router.push(redirect || '/dashboard')
-}
-
 onMounted(() => {
   // 已登录则跳转到首页
   if (userStore.isTokenValid()) {
@@ -98,7 +80,7 @@ onMounted(() => {
           <img src="@/assets/logo.jpg" alt="ChainPass" />
         </div>
         <h1 class="title">ChainPass</h1>
-        <p class="subtitle">区块链身份验证系统</p>
+        <p class="subtitle">可验证数字身份与沙盒结算系统</p>
       </div>
 
       <!-- 登录方式切换 -->
@@ -135,7 +117,6 @@ onMounted(() => {
             <el-form-item>
               <div class="form-options">
                 <el-checkbox v-model="loginForm.remember">记住我</el-checkbox>
-                <router-link to="/auth/forgot-password" class="forgot-link">忘记密码?</router-link>
               </div>
             </el-form-item>
 
@@ -153,45 +134,6 @@ onMounted(() => {
           </el-form>
         </el-tab-pane>
 
-        <!-- 二维码登录 -->
-        <el-tab-pane label="扫码登录" name="qr">
-          <div class="qr-login-wrapper">
-            <QRLogin
-              type="LOGIN"
-              title="扫码登录"
-              @success="handleQRLoginSuccess"
-              @switch-to-password="activeTab = 'password'"
-            />
-          </div>
-        </el-tab-pane>
-
-        <!-- OAuth 登录 -->
-        <el-tab-pane label="快捷登录" name="oauth">
-          <div class="oauth-buttons">
-            <el-button
-              size="large"
-              class="oauth-btn gitee"
-              @click="handleGiteeLogin"
-            >
-              <el-icon size="20"><Promotion /></el-icon>
-              <span>Gitee 账号登录</span>
-            </el-button>
-
-            <el-button
-              size="large"
-              class="oauth-btn zkp"
-              @click="handleZKPLogin"
-            >
-              <el-icon size="20"><Key /></el-icon>
-              <span>零知识证明认证</span>
-            </el-button>
-          </div>
-
-          <div class="oauth-tips">
-            <el-icon><InfoFilled /></el-icon>
-            <span>OAuth 登录将跳转到第三方平台进行授权</span>
-          </div>
-        </el-tab-pane>
       </el-tabs>
 
       <!-- 注册链接 -->
@@ -360,12 +302,6 @@ onMounted(() => {
   background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
 }
 
-.qr-login-wrapper {
-  display: flex;
-  justify-content: center;
-  padding: var(--spacing-lg) 0;
-}
-
 .oauth-buttons {
   display: flex;
   flex-direction: column;
@@ -393,17 +329,6 @@ onMounted(() => {
 .oauth-btn.gitee:hover {
   background-color: #a51920;
   border-color: #a51920;
-}
-
-.oauth-btn.zkp {
-  background-color: rgba(30, 41, 59, 0.8);
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-.oauth-btn.zkp:hover {
-  background-color: #334155;
-  border-color: #475569;
 }
 
 .oauth-tips {

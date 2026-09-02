@@ -45,7 +45,7 @@ export interface LoginResponse {
   username?: string
   nickname?: string
   avatar?: string
-  giteeId?: string
+  permissions?: string[]
 }
 
 /**
@@ -56,33 +56,6 @@ export interface TokenResponse {
   refreshToken: string
 }
 
-/**
- * OAuth 配置
- */
-export interface OAuthConfig {
-  clientId: string
-  redirectUri: string
-  responseType: string
-  scope?: string
-}
-
-/**
- * ZKP 挑战
- */
-export interface ZKPChallenge {
-  challenge: string
-  sessionId: string
-  expiresAt: number
-}
-
-/**
- * ZKP 证明
- */
-export interface ZKPProof {
-  sessionId: string
-  proof: string
-  publicKey: string
-}
 
 /**
  * 用户信息
@@ -153,7 +126,7 @@ export interface LoginLog {
   id: number
   userId: number
   username: string
-  loginType: 'password' | 'oauth' | 'zkp'
+  loginType: 'password'
   ip: string
   location: string
   device: string

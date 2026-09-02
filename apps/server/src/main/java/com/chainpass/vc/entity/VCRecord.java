@@ -53,7 +53,7 @@ public class VCRecord {
     private String ipfsHash;
 
     /**
-     * 区块链交易哈希(预留)
+     * 保留字段，当前不使用
      */
     private String blockchainTxHash;
 

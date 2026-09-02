@@ -23,8 +23,8 @@ import java.util.*;
 /**
  * VC服务 - 可验证凭证核心服务
  *
- * 实现W3C VC标准的凭证签发、验证、吊销功能
- * 使用真实的Ed25519签名验证
+ * VC Data Model 启发的本地签名凭证服务。
+ * 当前证明格式是 ChainPass 自定义格式，不宣称兼容 W3C Data Integrity cryptosuite。
  */
 @Service
 @RequiredArgsConstructor
@@ -107,7 +107,7 @@ public class VCService {
 
             // 9. 添加证明
             vc.setProof(VerifiableCredential.Proof.builder()
-                .type("Ed25519Signature2020")
+                .type("ChainPassEd25519Signature2026")
                 .created(now.toString())
                 .proofPurpose("assertionMethod")
                 .verificationMethod(issuerKeyService.getVerificationMethodId())
@@ -130,7 +130,7 @@ public class VCService {
 
             vcRecordMapper.insert(record);
 
-            log.info("VC issued successfully with real Ed25519 signature: {}", vcId);
+            log.info("Signed credential issued successfully: {}", vcId);
             return vc;
 
         } catch (Exception e) {
@@ -223,6 +223,15 @@ public class VCService {
         // 返回最新的一条
         VCRecord record = records.get(0);
         return JSON.parseObject(record.getVcData(), VerifiableCredential.class);
+    }
+
+    /**
+     * 判断持有者是否拥有一张当前仍可通过完整校验的指定类型凭证。
+     * 不只依赖数据库状态，还会复验签名、有效期和持有者 DID。
+     */
+    public boolean hasValidCredential(String holderDid, String vcType) {
+        return vcRecordMapper.findValidByHolderDidAndType(holderDid, vcType).stream()
+            .anyMatch(record -> verifyCredential(record.getVcId()).isValid());
     }
 
     /**

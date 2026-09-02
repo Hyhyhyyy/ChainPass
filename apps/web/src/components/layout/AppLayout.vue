@@ -35,7 +35,7 @@ const sidebarWidth = computed(() => (appStore.sidebarCollapsed ? '64px' : '240px
 
       <!-- 页脚 -->
       <footer class="footer">
-        <p>© {{ new Date().getFullYear() }} ChainPass 区块链身份验证系统 | 大连理工大学</p>
+        <p>© {{ new Date().getFullYear() }} ChainPass 数字身份与沙盒账本 | 大连理工大学</p>
       </footer>
     </div>
   </div>

@@ -2,7 +2,9 @@ package com.chainpass.controller;
 
 import com.chainpass.dto.LoginRequest;
 import com.chainpass.dto.RefreshTokenRequest;
+import com.chainpass.dto.CreateUserRequest;
 import com.chainpass.service.AuthService;
+import com.chainpass.service.UserService;
 import com.chainpass.vo.ApiResponse;
 import com.chainpass.vo.LoginResponse;
 import io.jsonwebtoken.Claims;
@@ -25,6 +27,16 @@ public class AuthController {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
+    private final UserService userService;
+
+    /**
+     * 公开注册。服务层统一负责唯一性、密码强度和密码哈希，避免前端绕过校验。
+     */
+    @PostMapping("/register")
+    public ApiResponse<Void> register(@Valid @RequestBody CreateUserRequest request) {
+        userService.createUser(request);
+        return ApiResponse.success();
+    }
 
     /**
      * 用户登录

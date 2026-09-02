@@ -1,6 +1,7 @@
 package com.chainpass.did.service;
 
 import com.chainpass.did.entity.DIDDocument;
+import com.chainpass.did.entity.DIDRecord;
 import com.chainpass.did.mapper.DIDMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,6 +33,7 @@ class DIDServiceTest {
     @BeforeEach
     void setUp() {
         testUserId = 1L;
+        ReflectionTestUtils.setField(didService, "keySecret", "unit-test-secret-with-at-least-32-bytes");
     }
 
     @Test
@@ -38,7 +41,7 @@ class DIDServiceTest {
     void testCreateDID_Success() {
         // Given
         when(didMapper.findByUserId(testUserId)).thenReturn(null);
-        when(didMapper.insert(any())).thenReturn(1);
+        when(didMapper.insert(any(DIDRecord.class))).thenReturn(1);
 
         // When
         DIDDocument document = didService.createDID(testUserId);
@@ -50,7 +53,7 @@ class DIDServiceTest {
         assertEquals(1, document.getVerificationMethod().size());
         assertNotNull(document.getAuthentication());
 
-        verify(didMapper, times(1)).insert(any());
+        verify(didMapper, times(1)).insert(any(DIDRecord.class));
     }
 
     @Test
@@ -66,7 +69,7 @@ class DIDServiceTest {
             didService.createDID(testUserId);
         });
 
-        verify(didMapper, never()).insert(any());
+        verify(didMapper, never()).insert(any(DIDRecord.class));
     }
 
     @Test

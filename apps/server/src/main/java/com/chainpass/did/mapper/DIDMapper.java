@@ -27,8 +27,9 @@ public interface DIDMapper extends BaseMapper<DIDRecord> {
     /**
      * 吊销DID
      */
-    @Update("UPDATE chain_did SET status = 2, revoked_at = NOW(), revoke_reason = #{reason} WHERE did = #{did}")
-    int revokeDID(String did, String reason);
+    @Update("UPDATE chain_did SET status = 2, revoked_at = NOW(), revoke_reason = #{reason} " +
+            "WHERE did = #{did} AND user_id = #{userId} AND status != 2")
+    int revokeDID(String did, Long userId, String reason);
 
     /**
      * 检查DID是否存在且有效

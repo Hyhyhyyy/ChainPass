@@ -6,6 +6,7 @@ import com.chainpass.handler.AuthenticationEntryPointImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -37,16 +38,14 @@ public class SecurityConfig {
     private final AccessDeniedHandlerImpl accessDeniedHandler;
     private final AuthenticationEntryPointImpl authenticationEntryPoint;
 
+    @Value("${security.cors.allowed-origins:http://localhost:5173}")
+    private String allowedOrigins;
+
     // 白名单路径
     private static final List<String> WHITE_LIST = Arrays.asList(
             "/auth/login",
             "/auth/register",
             "/auth/refresh",
-            "/auth/forgot-password",
-            "/oauth/**",
-            "/zkp/**",
-            "/qr/create",           // 创建二维码（公开）
-            "/qr/status/**",        // 查询二维码状态（公开）
             "/actuator/**",
             "/error",
             // Swagger UI & OpenAPI
@@ -90,15 +89,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 生产环境应配置具体的允许域名
-        String allowedOrigins = System.getenv("CORS_ALLOWED_ORIGINS");
-        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
-            configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",")));
-        } else {
-            // 开发环境允许所有来源，生产环境应禁用
-            configuration.setAllowedOriginPatterns(List.of("*"));
-            log.warn("CORS allows all origins - not recommended for production!");
-        }
+        configuration.setAllowedOrigins(Arrays.stream(allowedOrigins.split(","))
+            .map(String::trim).filter(origin -> !origin.isEmpty()).toList());
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

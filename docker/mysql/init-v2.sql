@@ -1,6 +1,6 @@
 -- =====================================================
 -- ChainPass v2.0 数据库初始化脚本
--- 基于区块链的跨境数字身份与合规支付解决方案
+-- 本地数字身份、签名凭证与沙盒多币种账本
 -- =====================================================
 
 -- 创建数据库
@@ -22,14 +22,13 @@ CREATE TABLE IF NOT EXISTS sys_user (
     avatar VARCHAR(255) COMMENT '头像URL',
     status TINYINT DEFAULT 0 COMMENT '状态：0-正常 1-停用',
     del_flag TINYINT DEFAULT 0 COMMENT '删除标志：0-未删除 1-已删除',
-    gitee_id VARCHAR(50) COMMENT 'Gitee ID',
-    scope VARCHAR(255) COMMENT 'OAuth scope',
+    gitee_id VARCHAR(50) COMMENT '保留兼容字段，当前不使用',
+    scope VARCHAR(255) COMMENT '保留兼容字段，当前不使用',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     last_login_at TIMESTAMP COMMENT '最后登录时间',
     last_login_ip VARCHAR(50) COMMENT '最后登录IP',
-    INDEX idx_username (username),
-    INDEX idx_gitee_id (gitee_id)
+    INDEX idx_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- 角色表
@@ -77,7 +76,7 @@ CREATE TABLE IF NOT EXISTS sys_login_log (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     user_id BIGINT COMMENT '用户ID',
     username VARCHAR(50) COMMENT '用户名',
-    login_type VARCHAR(20) COMMENT '登录类型：password/oauth/zkp',
+    login_type VARCHAR(20) COMMENT '登录类型：password',
     ip VARCHAR(50) COMMENT 'IP地址',
     location VARCHAR(100) COMMENT '地理位置',
     device VARCHAR(255) COMMENT '设备信息',
@@ -176,7 +175,7 @@ CREATE TABLE IF NOT EXISTS chain_vc (
     credential_hash VARCHAR(64) NOT NULL COMMENT '凭证内容哈希(SHA256)',
     signature TEXT NOT NULL COMMENT 'Ed25519签名(Base64)',
     ipfs_hash VARCHAR(255) COMMENT 'IPFS存储哈希(预留)',
-    blockchain_tx_hash VARCHAR(255) COMMENT '区块链交易哈希(预留)',
+    blockchain_tx_hash VARCHAR(255) COMMENT '保留字段，当前不使用',
     status TINYINT DEFAULT 0 COMMENT '状态: 0-有效 1-过期 2-吊销',
     issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '签发时间',
     expires_at TIMESTAMP NOT NULL COMMENT '过期时间',
@@ -234,23 +233,30 @@ CREATE TABLE IF NOT EXISTS pay_order (
     payee_did VARCHAR(255) NOT NULL COMMENT '收款人DID',
     payer_wallet_id BIGINT COMMENT '付款人钱包ID',
     payee_wallet_id BIGINT COMMENT '收款人钱包ID',
-    amount DECIMAL(18,2) NOT NULL COMMENT '支付金额',
+    amount DECIMAL(28,8) NOT NULL COMMENT '到账金额',
     currency VARCHAR(10) NOT NULL COMMENT '支付货币: CNY/USD/ETH',
-    original_amount DECIMAL(18,2) COMMENT '原始金额',
+    original_amount DECIMAL(28,8) COMMENT '汇出金额',
     original_currency VARCHAR(10) COMMENT '原始货币',
     exchange_rate DECIMAL(10,6) COMMENT '汇率',
-    fee_amount DECIMAL(18,2) DEFAULT 0.00 COMMENT '手续费',
+    fee_amount DECIMAL(28,8) DEFAULT 0.00000000 COMMENT '手续费',
     fee_currency VARCHAR(10) COMMENT '手续费币种',
-    payment_method VARCHAR(20) DEFAULT 'wallet' COMMENT '支付方式: wallet/stripe/alipay/crypto/mock',
+    payment_method VARCHAR(20) DEFAULT 'wallet' COMMENT '记账方式: wallet',
     payment_purpose VARCHAR(100) COMMENT '支付目的',
     description VARCHAR(500) COMMENT '支付描述',
+    source_country VARCHAR(2) NOT NULL COMMENT '汇出国家或地区代码',
+    target_country VARCHAR(2) NOT NULL COMMENT '收款国家或地区代码',
+    beneficiary_name VARCHAR(100) NOT NULL COMMENT '受益人姓名',
     vc_required VARCHAR(50) COMMENT '需要的VC类型',
     vc_verified TINYINT DEFAULT 0 COMMENT 'VC验证状态: 0-未验证 1-已验证',
     kyc_required TINYINT DEFAULT 0 COMMENT '是否需要KYC',
     kyc_verified TINYINT DEFAULT 0 COMMENT 'KYC验证状态',
     risk_score INT DEFAULT 0 COMMENT '风控评分(0-100)',
     risk_level VARCHAR(20) DEFAULT 'LOW' COMMENT '风险等级: LOW/MEDIUM/HIGH',
-    status TINYINT DEFAULT 0 COMMENT '状态: 0-待支付 1-处理中 2-成功 3-失败 4-已退款',
+    compliance_decision VARCHAR(30) COMMENT '规则或人工合规决策',
+    compliance_reasons VARCHAR(1000) COMMENT '可解释的命中规则与复核意见',
+    reviewed_by BIGINT COMMENT '支付合规复核人',
+    reviewed_at TIMESTAMP NULL COMMENT '支付合规复核时间',
+    status TINYINT DEFAULT 0 COMMENT '状态: 0-待支付 1-处理中 2-成功 3-失败 4-已退款 5-合规复核 6-合规拒绝',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     paid_at TIMESTAMP NULL COMMENT '支付时间',
@@ -266,14 +272,14 @@ CREATE TABLE IF NOT EXISTS pay_order (
 CREATE TABLE IF NOT EXISTS pay_transaction (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     order_no VARCHAR(64) NOT NULL COMMENT '订单号',
-    tx_hash VARCHAR(255) COMMENT '区块链交易哈希(预留)',
-    gateway VARCHAR(20) NOT NULL COMMENT '支付网关: wallet/mock/stripe/alipay/crypto',
+    tx_hash VARCHAR(255) COMMENT '内部交易标识',
+    gateway VARCHAR(20) NOT NULL COMMENT '处理通道: internal-ledger',
     gateway_tx_id VARCHAR(255) COMMENT '网关交易ID',
     from_address VARCHAR(255) COMMENT '付款地址',
     to_address VARCHAR(255) COMMENT '收款地址',
-    amount DECIMAL(18,2) NOT NULL COMMENT '交易金额',
+    amount DECIMAL(28,8) NOT NULL COMMENT '交易金额',
     currency VARCHAR(10) NOT NULL COMMENT '货币',
-    fee_amount DECIMAL(18,2) DEFAULT 0 COMMENT '手续费',
+    fee_amount DECIMAL(28,8) DEFAULT 0 COMMENT '手续费',
     status TINYINT DEFAULT 0 COMMENT '状态: 0-处理中 1-成功 2-失败',
     error_message TEXT COMMENT '错误信息',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -330,52 +336,15 @@ CREATE TABLE IF NOT EXISTS comp_kyc (
     INDEX idx_status (verification_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='KYC认证表';
 
--- 风控规则表
-CREATE TABLE IF NOT EXISTS comp_risk_rule (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    rule_code VARCHAR(50) NOT NULL UNIQUE COMMENT '规则编码',
-    rule_name VARCHAR(100) NOT NULL COMMENT '规则名称',
-    rule_name_en VARCHAR(100) COMMENT '英文名称',
-    rule_type VARCHAR(20) NOT NULL COMMENT '规则类型: amount/frequency/pattern/combined',
-    rule_definition TEXT NOT NULL COMMENT '规则定义JSON',
-    risk_weight INT DEFAULT 10 COMMENT '风险权重(1-100)',
-    action VARCHAR(20) DEFAULT 'FLAG' COMMENT '触发动作: FLAG/BLOCK/REVIEW',
-    description VARCHAR(500) COMMENT '描述',
-    status TINYINT DEFAULT 0 COMMENT '状态: 0-启用 1-禁用',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='风控规则表';
-
--- 风控记录表
-CREATE TABLE IF NOT EXISTS comp_risk_record (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    user_id BIGINT COMMENT '用户ID',
-    did VARCHAR(255) COMMENT '用户DID',
-    order_no VARCHAR(64) COMMENT '关联订单号',
-    risk_type VARCHAR(50) NOT NULL COMMENT '风险类型',
-    triggered_rules TEXT COMMENT '触发的规则JSON',
-    risk_score INT NOT NULL COMMENT '风险评分',
-    risk_level VARCHAR(20) NOT NULL COMMENT '风险等级',
-    action_taken VARCHAR(50) COMMENT '采取的措施',
-    review_status TINYINT DEFAULT 0 COMMENT '审核状态: 0-待审核 1-通过 2-拒绝',
-    reviewed_by BIGINT COMMENT '审核人ID',
-    reviewed_at TIMESTAMP NULL COMMENT '审核时间',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    INDEX idx_user_id (user_id),
-    INDEX idx_order_no (order_no),
-    INDEX idx_risk_score (risk_score),
-    INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='风控记录表';
-
 -- =====================================================
 -- 6. 初始化数据
 -- =====================================================
 
 -- 初始化管理员账号
 INSERT INTO sys_user (username, nickname, password, email, status, del_flag)
-VALUES ('admin', '系统管理员', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', 'admin@chainpass.com', 0, 0)
+VALUES ('admin', '系统管理员', '$2a$12$tcLOZYRbl58Pcp9zv.1OgO8dPP53ZH1EgF8hupZCFMitVN75lqSky', 'admin@chainpass.com', 0, 0)
 ON DUPLICATE KEY UPDATE username = username;
--- 密码为: admin123
+-- 仅本地开发初始密码: AdminPass2026!；首次登录后必须修改。
 
 -- 初始化角色
 INSERT INTO sys_role (role_name, role_code, description) VALUES
@@ -387,15 +356,23 @@ ON DUPLICATE KEY UPDATE role_name = VALUES(role_name);
 INSERT INTO sys_permission (permission_name, permission_code, type, parent_id, path, component, icon, sort_order) VALUES
 ('系统管理', 'system', 1, 0, '/system', NULL, 'Setting', 1),
 ('用户管理', 'system:user:list', 1, 1, '/system/users', 'system/UserManage', 'User', 1),
+('新增用户', 'system:user:add', 3, 1, NULL, NULL, NULL, 2),
+('编辑用户', 'system:user:edit', 3, 1, NULL, NULL, NULL, 3),
+('删除用户', 'system:user:delete', 3, 1, NULL, NULL, NULL, 4),
 ('角色管理', 'system:role:list', 1, 1, '/system/roles', 'system/RoleManage', 'Avatar', 2),
+('新增角色', 'system:role:add', 3, 1, NULL, NULL, NULL, 5),
+('编辑角色', 'system:role:edit', 3, 1, NULL, NULL, NULL, 6),
+('删除角色', 'system:role:delete', 3, 1, NULL, NULL, NULL, 7),
 ('身份管理', 'identity', 1, 0, '/identity', NULL, 'Key', 2),
 ('DID管理', 'identity:did:list', 1, 2, '/identity/did', 'identity/DIDManage', 'Postcard', 1),
 ('凭证管理', 'identity:vc:list', 1, 2, '/identity/vc', 'identity/VCList', 'Tickets', 2),
 ('支付中心', 'payment', 1, 0, '/payment', NULL, 'Wallet', 3),
 ('我的钱包', 'payment:wallet', 1, 3, '/payment/wallet', 'payment/Wallet', 'Wallet', 1),
-('跨境支付', 'payment:cross', 1, 3, '/payment/cross-border', 'payment/CrossBorder', 'Coin', 2),
+('跨境合规支付', 'payment:transfer', 1, 3, '/payment/transfer', 'payment/Transfer', 'Coin', 2),
 ('合规中心', 'compliance', 1, 0, '/compliance', NULL, 'Shield', 4),
-('KYC认证', 'compliance:kyc', 1, 4, '/compliance/kyc', 'compliance/KYCApply', 'Checked', 1)
+('KYC认证', 'compliance:kyc', 1, 4, '/compliance/kyc', 'compliance/KYCApply', 'Checked', 1),
+('KYC审核', 'compliance:kyc:audit', 3, 4, NULL, NULL, NULL, 2),
+('支付合规复核', 'compliance:payment:audit', 3, 4, NULL, NULL, NULL, 3)
 ON DUPLICATE KEY UPDATE permission_name = VALUES(permission_name);
 
 -- 关联管理员角色
@@ -409,35 +386,18 @@ ON DUPLICATE KEY UPDATE role_id = role_id;
 
 -- 初始化VC类型
 INSERT INTO chain_vc_type (type_code, type_name, type_name_en, validity_days, description, icon, sort_order) VALUES
-('IdentityCredential', '身份凭证', 'Identity Credential', 365, '基础身份证明凭证，包含姓名、国籍等基本信息', 'IdCard', 1),
-('KYCCredential', 'KYC认证凭证', 'KYC Credential', 730, 'KYC身份认证通过凭证，用于支付权限验证', 'Stamp', 2),
-('PaymentCredential', '支付权限凭证', 'Payment Credential', 365, '跨境支付权限凭证，包含支付限额、币种等信息', 'Coin', 3),
-('BusinessCredential', '企业凭证', 'Business Credential', 365, '企业身份凭证，用于B2B场景', 'OfficeBuilding', 4)
+('KYCCredential', '人工审核结论凭证', 'Review Decision Credential', 730, '证明 ChainPass 授权审核员已通过该申请，不代表外部机构KYC', 'Stamp', 1)
 ON DUPLICATE KEY UPDATE type_name = VALUES(type_name);
 
--- 初始化模拟汇率
+-- 初始化固定沙盒汇率
 INSERT INTO pay_exchange_rate (from_currency, to_currency, rate, source) VALUES
 ('CNY', 'USD', 0.1389, 'manual'),
 ('USD', 'CNY', 7.2000, 'manual'),
 ('CNY', 'ETH', 0.000052, 'manual'),
 ('ETH', 'CNY', 19230.7700, 'manual'),
 ('USD', 'ETH', 0.00037, 'manual'),
-('ETH', 'USD', 2702.7000, 'manual'),
-('CNY', 'EUR', 0.1280, 'manual'),
-('EUR', 'CNY', 7.8125, 'manual'),
-('USD', 'EUR', 0.9200, 'manual'),
-('EUR', 'USD', 1.0870, 'manual')
+('ETH', 'USD', 2702.7000, 'manual')
 ON DUPLICATE KEY UPDATE rate = VALUES(rate);
-
--- 初始化风控规则
-INSERT INTO comp_risk_rule (rule_code, rule_name, rule_name_en, rule_type, rule_definition, risk_weight, action, description) VALUES
-('HIGH_AMOUNT', '高额交易', 'High Amount Transaction', 'amount', '{"threshold": 10000, "currency": "CNY"}', 30, 'FLAG', '单笔交易金额超过1万元人民币'),
-('VERY_HIGH_AMOUNT', '超大额交易', 'Very High Amount Transaction', 'amount', '{"threshold": 50000, "currency": "CNY"}', 60, 'REVIEW', '单笔交易金额超过5万元人民币'),
-('RAPID_SEQUENCE', '连续快速交易', 'Rapid Sequence Transactions', 'frequency', '{"count": 5, "period_minutes": 60}', 40, 'FLAG', '1小时内超过5笔交易'),
-('NEW_USER_LARGE', '新用户大额交易', 'New User Large Transaction', 'combined', '{"user_age_days": 7, "amount_threshold": 5000}', 50, 'REVIEW', '注册7天内用户单笔超过5000元'),
-('CROSS_BORDER_HIGH', '高频跨境', 'High Frequency Cross-border', 'pattern', '{"cross_border_count": 10, "period_hours": 24}', 35, 'FLAG', '24小时内超过10笔跨境交易'),
-('NIGHT_TRANSACTION', '深夜交易', 'Night Time Transaction', 'pattern', '{"start_hour": 0, "end_hour": 6}', 15, 'FLAG', '凌晨0-6点交易')
-ON DUPLICATE KEY UPDATE rule_name = VALUES(rule_name);
 
 -- =====================================================
 -- 完成

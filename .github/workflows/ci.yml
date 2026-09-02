@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   frontend-test:
     runs-on: ubuntu-latest
@@ -52,18 +55,13 @@ jobs:
       - name: Run tests
         run: mvn clean test
 
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./apps/server/target/site/jacoco/jacoco.xml
-
   security-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'

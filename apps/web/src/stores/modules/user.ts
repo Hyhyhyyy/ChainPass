@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { authApi, oauthApi, zkpApi } from '@/api'
+import { authApi } from '@/api'
 import type { LoginRequest, LoginResponse, RegisterRequest } from '@chainpass/shared/types'
-
-// 预览模式开关
-const PREVIEW_MODE = true
 
 /**
  * 解析JWT获取过期时间
@@ -39,7 +36,6 @@ export const useUserStore = defineStore(
     const nickname = ref<string>('')
     const email = ref<string>('')
     const avatar = ref<string>('')
-    const giteeId = ref<string>('')
     const roles = ref<string[]>([])
     const permissions = ref<string[]>([])
     const createdAt = ref<string>('')
@@ -85,7 +81,6 @@ export const useUserStore = defineStore(
       nickname?: string
       email?: string
       avatar?: string
-      giteeId?: string
       roles?: string[]
       permissions?: string[]
     }
@@ -96,7 +91,6 @@ export const useUserStore = defineStore(
       if (userInfo.nickname) nickname.value = userInfo.nickname
       if (userInfo.email) email.value = userInfo.email
       if (userInfo.avatar) avatar.value = userInfo.avatar
-      if (userInfo.giteeId) giteeId.value = userInfo.giteeId
       if (userInfo.roles) roles.value = userInfo.roles
       if (userInfo.permissions) permissions.value = userInfo.permissions
     }
@@ -106,40 +100,12 @@ export const useUserStore = defineStore(
         const response = await authApi.login(credentials)
         if (response.code === 200 && response.data) {
           setTokens(response.data)
-          username.value = credentials.username
+          setUserInfo(response.data)
           return true
         }
         return false
       } catch (error) {
         console.error('登录失败:', error)
-        return false
-      }
-    }
-
-    async function giteeLogin(autoLogin: boolean = false): Promise<void> {
-      const response = await oauthApi.getGiteeConfig(autoLogin ? giteeId.value : undefined)
-      if (response.code === 200 && response.data) {
-        const { clientId, redirectUri, responseType, scope } = response.data
-        const params = new URLSearchParams({
-          client_id: clientId,
-          redirect_uri: redirectUri,
-          response_type: responseType,
-          scope: scope || 'user_info',
-        })
-        window.location.href = `https://gitee.com/oauth/authorize?${params.toString()}`
-      }
-    }
-
-    async function handleOAuthCallback(code: string): Promise<boolean> {
-      try {
-        const response = await oauthApi.handleGiteeCallback(code)
-        if (response.code === 200 && response.data) {
-          setTokens(response.data)
-          return true
-        }
-        return false
-      } catch (error) {
-        console.error('OAuth 登录失败:', error)
         return false
       }
     }
@@ -153,6 +119,7 @@ export const useUserStore = defineStore(
         const response = await authApi.refreshToken(refreshToken.value)
         if (response.code === 200 && response.data) {
           setTokens(response.data)
+          setUserInfo(response.data)
           return true
         }
         return false
@@ -182,7 +149,6 @@ export const useUserStore = defineStore(
       nickname.value = ''
       email.value = ''
       avatar.value = ''
-      giteeId.value = ''
       roles.value = []
       permissions.value = []
     }
@@ -195,25 +161,6 @@ export const useUserStore = defineStore(
       return roles.value.includes(role) || roles.value.includes('admin')
     }
 
-    // 预览模式：初始化 mock 用户数据
-    function initPreviewMode() {
-      if (PREVIEW_MODE && !username.value) {
-        userId.value = 1
-        username.value = 'demo_user'
-        nickname.value = '演示用户'
-        email.value = 'demo@chainpass.io'
-        roles.value = ['user', 'admin']
-        permissions.value = ['*:*:*']
-        createdAt.value = '2024-01-01 00:00:00'
-        // 设置一个永不过期的 token
-        accessToken.value = 'preview_mode_token'
-        tokenExpiresAt.value = Date.now() + 365 * 24 * 60 * 60 * 1000 // 一年后过期
-      }
-    }
-
-    // 自动初始化预览模式
-    initPreviewMode()
-
     return {
       // State
       accessToken,
@@ -225,7 +172,6 @@ export const useUserStore = defineStore(
       nickname,
       email,
       avatar,
-      giteeId,
       roles,
       permissions,
       createdAt,
@@ -238,8 +184,6 @@ export const useUserStore = defineStore(
       isTokenValid,
       isRefreshTokenValid,
       login,
-      giteeLogin,
-      handleOAuthCallback,
       refreshAccessToken,
       logout,
       clearAuth,
@@ -261,7 +205,6 @@ export const useUserStore = defineStore(
         'nickname',
         'email',
         'avatar',
-        'giteeId',
         'roles',
         'permissions',
         'createdAt',

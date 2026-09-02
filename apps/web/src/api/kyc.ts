@@ -7,9 +7,6 @@ export interface KYCSubmitRequest {
   nationality: string
   idType: string
   idNumber: string
-  idDocumentFront?: string
-  idDocumentBack?: string
-  facePhoto?: string
 }
 
 export interface KYCResponse {
@@ -34,6 +31,17 @@ export interface KYCStatusResponse {
   message: string
 }
 
+export interface KYCReviewResponse {
+  id: number
+  did: string
+  fullName: string
+  nationality: string
+  idType: string
+  idNumber: string
+  status: string
+  submittedAt?: string
+}
+
 // KYC API
 export const kycApi = {
   /**
@@ -51,13 +59,19 @@ export const kycApi = {
    * 获取KYC详情
    */
   getDetail: () => request.get<ApiResponse<KYCResponse>>('/kyc/detail'),
+
+  getReviews: (status = 1) =>
+    request.get<ApiResponse<KYCReviewResponse[]>>('/kyc/reviews', { params: { status } }),
+
+  approve: (id: number) => request.post<ApiResponse<void>>(`/kyc/${id}/approve`),
+
+  reject: (id: number, reason: string) =>
+    request.post<ApiResponse<void>>(`/kyc/${id}/reject`, null, { params: { reason } }),
 }
 
 // KYC等级选项
 export const KYC_LEVEL_OPTIONS = [
-  { value: 1, label: '基础认证', description: '姓名、国籍、证件信息' },
-  { value: 2, label: '中级认证', description: '增加人脸识别、地址验证' },
-  { value: 3, label: '高级认证', description: '完整企业级认证' },
+  { value: 1, label: '人工审核', description: '由授权审核员复核提交信息' },
 ]
 
 // 证件类型选项

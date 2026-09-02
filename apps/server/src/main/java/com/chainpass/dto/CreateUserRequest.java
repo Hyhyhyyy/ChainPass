@@ -14,7 +14,7 @@ public class CreateUserRequest {
     private String username;
 
     @NotBlank(message = "密码不能为空")
-    @Size(min = 6, max = 32, message = "密码长度为6-32个字符")
+    @Size(min = 8, max = 64, message = "密码长度为8-64个字符")
     private String password;
 
     private String email;

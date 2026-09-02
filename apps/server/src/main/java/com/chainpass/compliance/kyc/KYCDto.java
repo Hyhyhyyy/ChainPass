@@ -124,4 +124,33 @@ public class KYCDto {
         public String getMessage() { return message; }
         public void setMessage(String message) { this.message = message; }
     }
+
+    /** Full submission data, returned only to an authorized reviewer. */
+    public static class KYCReviewResponse {
+        private Long id;
+        private String did;
+        private String fullName;
+        private String nationality;
+        private String idType;
+        private String idNumber;
+        private String status;
+        private String submittedAt;
+
+        public Long getId() { return id; }
+        public void setId(Long id) { this.id = id; }
+        public String getDid() { return did; }
+        public void setDid(String did) { this.did = did; }
+        public String getFullName() { return fullName; }
+        public void setFullName(String fullName) { this.fullName = fullName; }
+        public String getNationality() { return nationality; }
+        public void setNationality(String nationality) { this.nationality = nationality; }
+        public String getIdType() { return idType; }
+        public void setIdType(String idType) { this.idType = idType; }
+        public String getIdNumber() { return idNumber; }
+        public void setIdNumber(String idNumber) { this.idNumber = idNumber; }
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
+        public String getSubmittedAt() { return submittedAt; }
+        public void setSubmittedAt(String submittedAt) { this.submittedAt = submittedAt; }
+    }
 }

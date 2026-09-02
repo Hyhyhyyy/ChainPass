@@ -45,14 +45,13 @@ mybatis-plus:
 # ChainPass配置
 chainpass:
   jwt:
-    secret: ${JWT_SECRET:chainpass-default-secret-key-please-change-in-production}
+    secret: ${JWT_SECRET}
     access-token-ttl: 900000      # 15分钟
     refresh-token-ttl: 604800000  # 7天
-  oauth2:
-    gitee:
-      client-id: ${GITEE_CLIENT_ID:}
-      client-secret: ${GITEE_CLIENT_SECRET:}
-      redirect-uri: ${GITEE_REDIRECT_URI:http://localhost:8080/oauth/gitee/callback}
+  did:
+    key-secret: ${DID_KEY_SECRET}
+  issuer:
+    key-secret: ${ISSUER_KEY_SECRET}
 
 # Actuator配置
 management:

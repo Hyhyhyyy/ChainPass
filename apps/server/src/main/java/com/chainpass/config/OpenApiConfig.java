@@ -36,13 +36,13 @@ public class OpenApiConfig {
         return new Info()
             .title("ChainPass API")
             .description("""
-                ## 基于区块链的跨境数字身份与合规支付解决方案
+                ## 本地数字身份、签名凭证与沙盒多币种账本
 
                 ### 核心功能
-                - **DID系统**: 去中心化身份创建、验证、管理
-                - **VC系统**: 可验证凭证签发、验证、吊销
-                - **支付系统**: 跨境支付、钱包管理、汇率转换
-                - **KYC系统**: 身份认证、合规审核
+                - **DID系统**: `did:chainpass` 本地方法的身份创建、挑战签名验证和吊销
+                - **凭证系统**: 自定义 Ed25519 签名 JSON 凭证的签发、验证和状态管理
+                - **沙盒账本**: CNY、USD、ETH 测试额度与配置汇率换算；不连接真实资金
+                - **审核流程**: 人工审核演示，通过后签发最小披露的审核结论凭证
 
                 ### 认证方式
                 使用Bearer Token认证，登录后获取access_token，在请求头添加：
@@ -61,14 +61,9 @@ public class OpenApiConfig {
     }
 
     private List<Server> servers() {
-        return List.of(
-            new Server()
-                .url("http://localhost:" + serverPort)
-                .description("开发服务器"),
-            new Server()
-                .url("https://api.chainpass.io")
-                .description("生产服务器")
-        );
+        return List.of(new Server()
+            .url("http://localhost:" + serverPort)
+            .description("本地服务器"));
     }
 
     private SecurityRequirement securityRequirement() {

@@ -1,5 +1,7 @@
 package com.chainpass.vo;
 
+import java.util.List;
+
 /**
  * 登录响应
  */
@@ -11,19 +13,19 @@ public class LoginResponse {
     private String username;
     private String nickname;
     private String avatar;
-    private String giteeId;
+    private List<String> permissions;
 
     public LoginResponse() {}
 
     public LoginResponse(String accessToken, String refreshToken, Long userId, String username,
-                         String nickname, String avatar, String giteeId) {
+                         String nickname, String avatar, List<String> permissions) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.userId = userId;
         this.username = username;
         this.nickname = nickname;
         this.avatar = avatar;
-        this.giteeId = giteeId;
+        this.permissions = permissions;
     }
 
     // Getters and Setters
@@ -45,8 +47,8 @@ public class LoginResponse {
     public String getAvatar() { return avatar; }
     public void setAvatar(String avatar) { this.avatar = avatar; }
 
-    public String getGiteeId() { return giteeId; }
-    public void setGiteeId(String giteeId) { this.giteeId = giteeId; }
+    public List<String> getPermissions() { return permissions; }
+    public void setPermissions(List<String> permissions) { this.permissions = permissions; }
 
     // Builder
     public static Builder builder() { return new Builder(); }
@@ -58,7 +60,7 @@ public class LoginResponse {
         private String username;
         private String nickname;
         private String avatar;
-        private String giteeId;
+        private List<String> permissions;
 
         public Builder accessToken(String accessToken) { this.accessToken = accessToken; return this; }
         public Builder refreshToken(String refreshToken) { this.refreshToken = refreshToken; return this; }
@@ -66,10 +68,10 @@ public class LoginResponse {
         public Builder username(String username) { this.username = username; return this; }
         public Builder nickname(String nickname) { this.nickname = nickname; return this; }
         public Builder avatar(String avatar) { this.avatar = avatar; return this; }
-        public Builder giteeId(String giteeId) { this.giteeId = giteeId; return this; }
+        public Builder permissions(List<String> permissions) { this.permissions = permissions; return this; }
 
         public LoginResponse build() {
-            return new LoginResponse(accessToken, refreshToken, userId, username, nickname, avatar, giteeId);
+            return new LoginResponse(accessToken, refreshToken, userId, username, nickname, avatar, permissions);
         }
     }
 }

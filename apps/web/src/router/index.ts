@@ -21,24 +21,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/auth/RegisterView.vue'),
         meta: { title: '注册', requiresAuth: false },
       },
-      {
-        path: 'forgot-password',
-        name: 'ForgotPassword',
-        component: () => import('@/views/auth/ForgotPasswordView.vue'),
-        meta: { title: '忘记密码', requiresAuth: false },
-      },
-      {
-        path: 'zkp-verify',
-        name: 'ZKPVerify',
-        component: () => import('@/views/auth/ZKPVerifyView.vue'),
-        meta: { title: '身份认证', requiresAuth: false },
-      },
-      {
-        path: 'oauth/callback',
-        name: 'OAuthCallback',
-        component: () => import('@/views/auth/OAuthCallbackView.vue'),
-        meta: { title: 'OAuth回调', requiresAuth: false },
-      },
     ],
   },
   {
@@ -76,7 +58,7 @@ const routes: RouteRecordRaw[] = [
         path: 'payment/transfer',
         name: 'Transfer',
         component: () => import('@/views/payment/TransferView.vue'),
-        meta: { title: '跨境支付', requiresAuth: true },
+        meta: { title: '跨境合规支付', requiresAuth: true },
       },
       {
         path: 'payment/history',
@@ -91,6 +73,18 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/compliance/KYCApplyView.vue'),
         meta: { title: 'KYC认证', requiresAuth: true },
       },
+      {
+        path: 'compliance/reviews',
+        name: 'KYCReviews',
+        component: () => import('@/views/compliance/KYCReviewView.vue'),
+        meta: { title: 'KYC人工审核', requiresAuth: true, permission: 'compliance:kyc:audit' },
+      },
+      {
+        path: 'compliance/payment-reviews',
+        name: 'PaymentReviews',
+        component: () => import('@/views/compliance/PaymentReviewView.vue'),
+        meta: { title: '跨境支付复核', requiresAuth: true, permission: 'compliance:payment:audit' },
+      },
       // 用户中心
       {
         path: 'user/profile',
@@ -104,48 +98,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/user/SecurityView.vue'),
         meta: { title: '安全设置', requiresAuth: true },
       },
-      {
-        path: 'user/devices',
-        name: 'Devices',
-        component: () => import('@/views/user/DevicesView.vue'),
-        meta: { title: '登录设备', requiresAuth: true },
-      },
-      {
-        path: 'user/logs',
-        name: 'UserLogs',
-        component: () => import('@/views/user/LogsView.vue'),
-        meta: { title: '操作日志', requiresAuth: true },
-      },
       // 系统管理
       {
         path: 'system/users',
         name: 'UserManage',
         component: () => import('@/views/system/UserManageView.vue'),
         meta: { title: '用户管理', requiresAuth: true, permission: 'system:user:list' },
-      },
-      {
-        path: 'system/roles',
-        name: 'RoleManage',
-        component: () => import('@/views/system/RoleManageView.vue'),
-        meta: { title: '角色管理', requiresAuth: true, permission: 'system:role:list' },
-      },
-      {
-        path: 'system/permissions',
-        name: 'PermissionManage',
-        component: () => import('@/views/system/PermissionView.vue'),
-        meta: { title: '权限管理', requiresAuth: true, permission: 'system:permission:list' },
-      },
-      {
-        path: 'system/oauth',
-        name: 'OAuthConfig',
-        component: () => import('@/views/system/OAuthConfigView.vue'),
-        meta: { title: 'OAuth配置', requiresAuth: true, permission: 'system:oauth:config' },
-      },
-      {
-        path: 'system/logs',
-        name: 'SystemLogs',
-        component: () => import('@/views/system/LogQueryView.vue'),
-        meta: { title: '日志查询', requiresAuth: true, permission: 'system:log:list' },
       },
     ],
   },
@@ -175,21 +133,12 @@ const router = createRouter({
 })
 
 // 白名单路由
-const whiteList = ['/auth/login', '/auth/register', '/auth/forgot-password', '/auth/zkp-verify', '/auth/oauth/callback', '/403']
-
-// 预览模式：设为 true 可直接访问所有页面（仅供开发预览）
-const PREVIEW_MODE = true
+const whiteList = ['/auth/login', '/auth/register', '/403']
 
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
   // 设置页面标题
-  document.title = `${to.meta.title || 'ChainPass'} - 区块链身份验证系统`
-
-  // 预览模式：直接放行所有页面
-  if (PREVIEW_MODE) {
-    next()
-    return
-  }
+  document.title = `${to.meta.title || 'ChainPass'} - 跨境数字身份与合规支付原型`
 
   const userStore = useUserStore()
 
@@ -207,6 +156,12 @@ router.beforeEach(async (to, from, next) => {
   // 检查登录状态
   if (!userStore.isTokenValid()) {
     next(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)
+    return
+  }
+
+  const requiredPermission = to.meta.permission as string | undefined
+  if (requiredPermission && !userStore.hasPermission(requiredPermission)) {
+    next('/403')
     return
   }
 

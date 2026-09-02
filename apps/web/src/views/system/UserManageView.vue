@@ -3,10 +3,6 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { userApi } from '@/api'
 import type { UserInfo } from '@chainpass/shared/types'
-import { mockUserList } from '@/mock/previewData'
-
-// 预览模式
-const PREVIEW_MODE = true
 
 // 搜索表单
 const searchForm = reactive({
@@ -50,7 +46,8 @@ const rules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 32, message: '密码长度为6-32个字符', trigger: 'blur' },
+    { min: 8, max: 64, message: '密码长度为8-64个字符', trigger: 'blur' },
+    { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, message: '密码必须包含大小写字母和数字', trigger: 'blur' },
   ],
   email: [
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' },
@@ -67,31 +64,15 @@ const statusOptions = [
 async function getUserList() {
   loading.value = true
   try {
-    if (PREVIEW_MODE) {
-      // 使用预览数据
-      let filteredList = [...mockUserList]
-      if (searchForm.username) {
-        filteredList = filteredList.filter(u => u.username.includes(searchForm.username))
-      }
-      if (searchForm.email) {
-        filteredList = filteredList.filter(u => u.email.includes(searchForm.email))
-      }
-      if (searchForm.status !== undefined) {
-        filteredList = filteredList.filter(u => u.status === searchForm.status)
-      }
-      userList.value = filteredList
-      pagination.total = filteredList.length
-    } else {
-      const response = await userApi.getUserList({
-        ...searchForm,
-        page: pagination.page,
-        pageSize: pagination.pageSize,
-      })
+    const response = await userApi.getUserList({
+      ...searchForm,
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+    })
 
-      if (response.code === 200 && response.data) {
-        userList.value = response.data.list
-        pagination.total = response.data.total
-      }
+    if (response.code === 200 && response.data) {
+      userList.value = response.data.list
+      pagination.total = response.data.total
     }
   } catch (error) {
     ElMessage.error('获取用户列表失败')
@@ -189,7 +170,7 @@ async function handleResetPassword(row: UserInfo) {
 async function handleSubmit() {
   if (!formRef.value) return
 
-  await formRef.value.validate(async (valid) => {
+  await formRef.value.validate(async (valid: boolean) => {
     if (!valid) return
 
     try {

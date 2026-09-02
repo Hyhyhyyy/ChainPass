@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 
 /**
- * DID文档实体 - W3C DID标准
+ * DID Core 概念启发的本地文档实体，不声明标准符合性。
  * 参考: https://www.w3.org/TR/did-core/
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)

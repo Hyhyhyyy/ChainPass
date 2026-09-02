@@ -27,6 +27,7 @@ public class Wallet {
     /**
      * 钱包地址
      */
+    @TableField("wallet_address")
     private String address;
 
     /**

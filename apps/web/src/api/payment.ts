@@ -26,6 +26,14 @@ export interface PaymentOrder {
   status: string
   createdAt: string
   paidAt: string
+  sourceCountry: string
+  targetCountry: string
+  beneficiaryName: string
+  paymentPurpose: string
+  riskScore: number
+  riskLevel: string
+  complianceDecision: string
+  complianceReasons: string
 }
 
 export interface Transaction {
@@ -57,6 +65,15 @@ export interface CreatePaymentRequest {
   targetCurrency?: string
   paymentMethod?: string
   description?: string
+  sourceCountry: string
+  targetCountry: string
+  beneficiaryName: string
+  paymentPurpose: string
+}
+
+export interface ComplianceReviewOrder extends PaymentOrder {
+  id: number
+  description?: string
 }
 
 // 支付 API
@@ -78,6 +95,9 @@ export const paymentApi = {
   execute: (orderNo: string) =>
     request.post<ApiResponse<Transaction>>(`/payment/execute/${orderNo}`),
 
+  getOrder: (orderNo: string) =>
+    request.get<ApiResponse<PaymentOrder>>(`/payment/orders/${orderNo}`),
+
   /**
    * 获取交易历史
    */
@@ -88,4 +108,13 @@ export const paymentApi = {
    */
   getRate: (from: string, to: string) =>
     request.get<ApiResponse<number>>(`/payment/rate/${from}/${to}`),
+
+  getComplianceReviews: () =>
+    request.get<ApiResponse<ComplianceReviewOrder[]>>('/payment/compliance/reviews'),
+
+  approveComplianceReview: (orderNo: string, note: string) =>
+    request.post<ApiResponse<void>>(`/payment/compliance/reviews/${orderNo}/approve`, null, { params: { note } }),
+
+  rejectComplianceReview: (orderNo: string, note: string) =>
+    request.post<ApiResponse<void>>(`/payment/compliance/reviews/${orderNo}/reject`, null, { params: { note } }),
 }

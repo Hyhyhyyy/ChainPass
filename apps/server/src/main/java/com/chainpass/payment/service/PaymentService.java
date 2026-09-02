@@ -1,18 +1,19 @@
 package com.chainpass.payment.service;
 
 import com.chainpass.did.service.DIDService;
+import com.chainpass.compliance.kyc.KYCService;
+import com.chainpass.vc.service.VCService;
 import com.chainpass.exception.BusinessException;
 import com.chainpass.payment.dto.PaymentDto;
 import com.chainpass.payment.entity.*;
 import com.chainpass.payment.mapper.*;
 import com.chainpass.util.RedisCache;
-import com.chainpass.vc.entity.VerifiableCredential;
-import com.chainpass.vc.service.VCService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 支付服务 - 模拟跨境支付核心服务
+ * 沙盒多币种内部账本服务（不连接银行、支付机构或区块链）。
  *
  * 使用乐观锁防止并发余额冲突
  * 支持汇率缓存
@@ -38,8 +39,12 @@ public class PaymentService {
     private final TransactionMapper transactionMapper;
     private final ExchangeRateMapper rateMapper;
     private final DIDService didService;
+    private final KYCService kycService;
     private final VCService vcService;
     private final RedisCache redisCache;
+
+    @Value("${chainpass.payment.sandbox-credits-enabled:false}")
+    private boolean sandboxCreditsEnabled;
 
     // 手续费率
     private static final BigDecimal FEE_RATE = new BigDecimal("0.001"); // 0.1%
@@ -50,6 +55,10 @@ public class PaymentService {
     // 汇率缓存时间：1小时
     private static final long RATE_CACHE_TTL = 60 * 60 * 1000;
     private static final String RATE_CACHE_PREFIX = "exchange:rate:";
+    private static final Set<String> SUPPORTED_COUNTRIES = Set.of(
+        "CN", "US", "SG", "GB", "JP", "KR", "HK", "DE", "FR", "AU", "CA");
+    private static final Set<String> PAYMENT_PURPOSES = Set.of(
+        "GOODS_SERVICES", "EDUCATION", "FAMILY_SUPPORT", "TRAVEL", "BUSINESS");
 
     /**
      * 获取或创建用户钱包
@@ -76,7 +85,9 @@ public class PaymentService {
         }
 
         // 生成钱包地址
-        String address = "0x" + UUID.randomUUID().toString().replace("-", "").substring(0, 40);
+        byte[] addressBytes = new byte[20];
+        new java.security.SecureRandom().nextBytes(addressBytes);
+        String address = "0x" + java.util.HexFormat.of().formatHex(addressBytes);
 
         Wallet wallet = Wallet.builder()
             .userId(userId)
@@ -94,28 +105,58 @@ public class PaymentService {
 
         walletMapper.insert(wallet);
 
-        // 初始化模拟余额
-        initMockBalance(wallet.getId());
+        if (sandboxCreditsEnabled) {
+            initSandboxBalance(wallet.getId());
+        }
 
         return wallet;
     }
 
     /**
-     * 初始化模拟余额（测试用）
+     * 仅开发配置可启用的沙盒额度；它不是法币或链上资产。
      */
-    private void initMockBalance(Long walletId) {
+    private void initSandboxBalance(Long walletId) {
         walletMapper.addCnyBalance(walletId, new BigDecimal("10000.00"));
         walletMapper.addUsdBalance(walletId, new BigDecimal("1500.00"));
         walletMapper.addEthBalance(walletId, new BigDecimal("0.5"));
     }
 
     /**
-     * 创建跨境支付订单
+     * 创建沙盒账本转账订单
      */
     @Transactional
     public PaymentOrder createPayment(String payerDid, PaymentDto.CreatePaymentRequest request) {
         log.info("Creating payment: payer={}, payee={}, amount={} {}",
             payerDid, request.getPayeeDid(), request.getAmount(), request.getCurrency());
+
+        request.setCurrency(request.getCurrency().toUpperCase(Locale.ROOT));
+        if (request.getTargetCurrency() != null) {
+            request.setTargetCurrency(request.getTargetCurrency().toUpperCase(Locale.ROOT));
+        }
+        request.setSourceCountry(request.getSourceCountry().toUpperCase(Locale.ROOT));
+        request.setTargetCountry(request.getTargetCountry().toUpperCase(Locale.ROOT));
+        request.setPaymentPurpose(request.getPaymentPurpose().toUpperCase(Locale.ROOT));
+        Set<String> supportedCurrencies = Set.of("CNY", "USD", "ETH");
+        if (!supportedCurrencies.contains(request.getCurrency()) ||
+            (request.getTargetCurrency() != null && !supportedCurrencies.contains(request.getTargetCurrency()))) {
+            throw new BusinessException("仅支持CNY、USD和ETH沙盒记账单位");
+        }
+        if (request.getPaymentMethod() != null && !"wallet".equals(request.getPaymentMethod())) {
+            throw new BusinessException("仅支持内部wallet记账方式");
+        }
+        if (payerDid.equals(request.getPayeeDid())) {
+            throw new BusinessException("不能向自己的钱包转账");
+        }
+        if (!SUPPORTED_COUNTRIES.contains(request.getSourceCountry()) ||
+            !SUPPORTED_COUNTRIES.contains(request.getTargetCountry())) {
+            throw new BusinessException("当前沙盒未开放该国家或地区走廊");
+        }
+        if (request.getSourceCountry().equals(request.getTargetCountry())) {
+            throw new BusinessException("跨境订单的汇出地和收款地不能相同");
+        }
+        if (!PAYMENT_PURPOSES.contains(request.getPaymentPurpose())) {
+            throw new BusinessException("不支持的跨境支付用途");
+        }
 
         // 1. 验证付款人DID
         if (!didService.isValidDID(payerDid)) {
@@ -131,6 +172,11 @@ public class PaymentService {
         Wallet payerWallet = walletMapper.findByDid(payerDid);
         if (payerWallet == null) {
             throw new BusinessException("付款人钱包不存在");
+        }
+
+        Wallet payeeWallet = walletMapper.findByDid(request.getPayeeDid());
+        if (payeeWallet == null) {
+            throw new BusinessException("收款人尚未初始化沙盒钱包");
         }
 
         // 4. 汇率转换（如果需要）
@@ -153,35 +199,50 @@ public class PaymentService {
         }
 
         // 5. 计算手续费
-        BigDecimal feeAmount = finalAmount.multiply(FEE_RATE).setScale(2, RoundingMode.HALF_UP);
+        int feeScale = "ETH".equals(originalCurrency) ? 8 : 2;
+        BigDecimal feeAmount = originalAmount.multiply(FEE_RATE).setScale(feeScale, RoundingMode.HALF_UP);
 
         // 6. 检查余额
-        if (!checkBalance(payerWallet, finalAmount.add(feeAmount), finalCurrency)) {
+        if (!checkBalance(payerWallet, originalAmount.add(feeAmount), originalCurrency)) {
             throw new BusinessException("余额不足");
         }
 
-        // 7. 创建订单
+        ComplianceDecision compliance = evaluateCompliance(payerDid, request, originalAmount, originalCurrency);
+
+        // 7. 创建订单；待复核和拒绝订单同样落库，形成可追溯的合规决策记录
         String orderNo = generateOrderNo();
         PaymentOrder order = PaymentOrder.builder()
             .orderNo(orderNo)
             .payerDid(payerDid)
             .payeeDid(request.getPayeeDid())
             .payerWalletId(payerWallet.getId())
+            .payeeWalletId(payeeWallet.getId())
             .amount(finalAmount)
             .currency(finalCurrency)
             .originalAmount(originalAmount)
             .originalCurrency(originalCurrency)
             .exchangeRate(exchangeRate)
             .feeAmount(feeAmount)
-            .feeCurrency(finalCurrency)
+            .feeCurrency(originalCurrency)
             .paymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "wallet")
+            .paymentPurpose(request.getPaymentPurpose())
             .description(request.getDescription())
-            .vcRequired("PaymentCredential") // 默认需要支付凭证
-            .vcVerified(0)
-            .kycRequired(0)
-            .riskScore(0)
-            .riskLevel("LOW")
-            .status(0) // 待支付
+            .sourceCountry(request.getSourceCountry())
+            .targetCountry(request.getTargetCountry())
+            .beneficiaryName(request.getBeneficiaryName().trim())
+            .vcRequired("KYCCredential")
+            .vcVerified(compliance.payerKycVerified() ? 1 : 0)
+            .kycRequired(1)
+            .kycVerified(compliance.payerKycVerified() ? 1 : 0)
+            .riskScore(compliance.score())
+            .riskLevel(compliance.riskLevel())
+            .complianceDecision(compliance.decision())
+            .complianceReasons(String.join("；", compliance.reasons()))
+            .status(switch (compliance.decision()) {
+                case "APPROVED" -> 0;
+                case "REVIEW" -> 5;
+                default -> 6;
+            })
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
             .expiredAt(Instant.now().plus(30, ChronoUnit.MINUTES))
@@ -193,17 +254,80 @@ public class PaymentService {
         return order;
     }
 
+    private ComplianceDecision evaluateCompliance(String payerDid,
+                                                    PaymentDto.CreatePaymentRequest request,
+                                                    BigDecimal amount,
+                                                    String currency) {
+        List<String> reasons = new ArrayList<>();
+        int score = 0;
+        boolean payerKyc = kycService.isDIDKYCVerified(payerDid)
+            && vcService.hasValidCredential(payerDid, "KYCCredential");
+        boolean payeeKyc = kycService.isDIDKYCVerified(request.getPayeeDid())
+            && vcService.hasValidCredential(request.getPayeeDid(), "KYCCredential");
+
+        if (!payerKyc) {
+            score = 100;
+            reasons.add("付款方缺少有效的人工审核结论凭证");
+        }
+        if (!payeeKyc) {
+            score += 25;
+            reasons.add("收款方尚无有效审核结论，需增强复核");
+        } else if (!kycService.isBeneficiaryNameConsistent(
+                request.getPayeeDid(), request.getBeneficiaryName())) {
+            score += 50;
+            reasons.add("受益人姓名与收款方已审核身份不一致");
+        }
+
+        BigDecimal cnyAmount = amount;
+        if (!"CNY".equals(currency)) {
+            BigDecimal cnyRate = getExchangeRate(currency, "CNY");
+            if (cnyRate == null) {
+                throw new BusinessException("缺少用于合规计价的CNY换算汇率");
+            }
+            cnyAmount = amount.multiply(cnyRate);
+        }
+        if (cnyAmount.compareTo(new BigDecimal("50000")) >= 0) {
+            score += 60;
+            reasons.add("沙盒等值金额达到高额复核阈值");
+        } else if (cnyAmount.compareTo(new BigDecimal("10000")) >= 0) {
+            score += 35;
+            reasons.add("沙盒等值金额达到增强审查阈值");
+        }
+        if ("ETH".equals(currency)) {
+            score += 20;
+            reasons.add("使用波动性记账单位");
+        }
+        if ("BUSINESS".equals(request.getPaymentPurpose())) {
+            score += 10;
+            reasons.add("商业用途需要保留贸易背景材料");
+        }
+
+        score = Math.min(score, 100);
+        String decision = !payerKyc || score >= 80 ? "REJECTED" : score >= 40 ? "REVIEW" : "APPROVED";
+        String riskLevel = score >= 80 ? "HIGH" : score >= 40 ? "MEDIUM" : "LOW";
+        if (reasons.isEmpty()) {
+            reasons.add("身份、走廊、用途和金额规则均通过");
+        }
+        return new ComplianceDecision(score, riskLevel, decision, reasons, payerKyc);
+    }
+
+    private record ComplianceDecision(int score, String riskLevel, String decision,
+                                      List<String> reasons, boolean payerKycVerified) {}
+
     /**
      * 执行支付 - 使用乐观锁确保并发安全
      */
     @Transactional
-    public Transaction executePayment(String orderNo) {
+    public Transaction executePayment(String orderNo, String requesterDid) {
         log.info("Executing payment: {}", orderNo);
 
         // 1. 获取订单
         PaymentOrder order = orderMapper.findByOrderNo(orderNo);
         if (order == null) {
             throw new BusinessException("订单不存在");
+        }
+        if (!order.getPayerDid().equals(requesterDid)) {
+            throw new BusinessException("无权执行他人的支付订单");
         }
 
         if (order.getStatus() != 0) {
@@ -216,8 +340,10 @@ public class PaymentService {
             throw new BusinessException("订单已过期");
         }
 
-        // 3. 更新订单状态为处理中
-        orderMapper.updateStatus(orderNo, 1);
+        // 3. 以条件更新抢占订单，避免两个并发请求重复扣款
+        if (orderMapper.markProcessing(orderNo) != 1) {
+            throw new BusinessException("订单正在处理或已被处理");
+        }
 
         try {
             // 4. 执行转账 - 使用乐观锁
@@ -226,15 +352,15 @@ public class PaymentService {
                 throw new BusinessException("付款人钱包不存在");
             }
 
-            Wallet payeeWallet = walletMapper.findByDid(order.getPayeeDid());
+            Wallet payeeWallet = walletMapper.selectById(order.getPayeeWalletId());
             if (payeeWallet == null) {
-                // 如果收款人没有钱包，自动创建
-                payeeWallet = createWallet(null, order.getPayeeDid());
+                throw new BusinessException("收款人钱包不存在");
             }
 
             // 扣除付款人余额（含手续费）- 使用乐观锁
-            BigDecimal totalDeduct = order.getAmount().add(order.getFeeAmount());
-            boolean deductSuccess = deductBalanceWithRetry(payerWallet, totalDeduct, order.getCurrency());
+            BigDecimal totalDeduct = order.getOriginalAmount().add(order.getFeeAmount());
+            boolean deductSuccess = deductBalanceWithRetry(
+                payerWallet, totalDeduct, order.getOriginalCurrency());
             if (!deductSuccess) {
                 throw new BusinessException("余额扣除失败，请重试");
             }
@@ -252,8 +378,8 @@ public class PaymentService {
             Transaction transaction = Transaction.builder()
                 .orderNo(orderNo)
                 .txHash(txHash)
-                .gateway("mock")
-                .gatewayTxId("mock_" + System.currentTimeMillis())
+                .gateway("internal-ledger")
+                .gatewayTxId("ledger_" + UUID.randomUUID().toString().replace("-", ""))
                 .fromAddress(payerWallet.getAddress())
                 .toAddress(payeeWallet.getAddress())
                 .amount(order.getAmount())
@@ -267,12 +393,9 @@ public class PaymentService {
             transactionMapper.insert(transaction);
 
             // 6. 更新订单状态
-            PaymentOrder updateOrder = new PaymentOrder();
-            updateOrder.setOrderNo(orderNo);
-            updateOrder.setStatus(2); // 成功
-            updateOrder.setPaidAt(Instant.now());
-            updateOrder.setUpdatedAt(Instant.now());
-            orderMapper.updateById(updateOrder);
+            if (orderMapper.markPaid(orderNo, Instant.now()) != 1) {
+                throw new BusinessException("订单状态更新失败，转账已回滚");
+            }
 
             log.info("Payment executed successfully with optimistic lock: {}", orderNo);
             return transaction;
@@ -285,6 +408,41 @@ public class PaymentService {
             log.error("Payment execution failed unexpectedly", e);
             orderMapper.updateStatus(orderNo, 3);
             throw new BusinessException("支付执行失败: " + e.getMessage());
+        }
+    }
+
+    public List<PaymentOrder> getComplianceReviewQueue() {
+        return orderMapper.findComplianceReviewQueue();
+    }
+
+    public PaymentOrder getOwnedOrder(String orderNo, String requesterDid) {
+        PaymentOrder order = orderMapper.findByOrderNo(orderNo);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+        if (!order.getPayerDid().equals(requesterDid)) {
+            throw new BusinessException("无权查看他人的支付订单");
+        }
+        return order;
+    }
+
+    @Transactional
+    public void approveComplianceReview(String orderNo, Long reviewerId, String note) {
+        if (note == null || note.isBlank()) {
+            throw new BusinessException("复核意见不能为空");
+        }
+        if (orderMapper.approveComplianceReview(orderNo, reviewerId, Instant.now(), note.trim()) != 1) {
+            throw new BusinessException("订单不存在或不在待复核状态");
+        }
+    }
+
+    @Transactional
+    public void rejectComplianceReview(String orderNo, Long reviewerId, String note) {
+        if (note == null || note.isBlank()) {
+            throw new BusinessException("拒绝原因不能为空");
+        }
+        if (orderMapper.rejectComplianceReview(orderNo, reviewerId, Instant.now(), note.trim()) != 1) {
+            throw new BusinessException("订单不存在或不在待复核状态");
         }
     }
 
@@ -329,8 +487,8 @@ public class PaymentService {
             boolean isPayer = order.getPayerDid().equals(did);
             response.setType(isPayer ? "OUT" : "IN");
             response.setCounterpartyDid(isPayer ? order.getPayeeDid() : order.getPayerDid());
-            response.setAmount(order.getAmount());
-            response.setCurrency(order.getCurrency());
+            response.setAmount(isPayer ? order.getOriginalAmount() : order.getAmount());
+            response.setCurrency(isPayer ? order.getOriginalCurrency() : order.getCurrency());
             response.setStatus(getStatusText(order.getStatus()));
             response.setDescription(order.getDescription());
             response.setCreatedAt(order.getCreatedAt().toString());
@@ -357,8 +515,8 @@ public class PaymentService {
             boolean isPayer = order.getPayerDid().equals(did);
             response.setType(isPayer ? "OUT" : "IN");
             response.setCounterpartyDid(isPayer ? order.getPayeeDid() : order.getPayerDid());
-            response.setAmount(order.getAmount());
-            response.setCurrency(order.getCurrency());
+            response.setAmount(isPayer ? order.getOriginalAmount() : order.getAmount());
+            response.setCurrency(isPayer ? order.getOriginalCurrency() : order.getCurrency());
             response.setStatus(getStatusText(order.getStatus()));
             response.setDescription(order.getDescription());
             response.setCreatedAt(order.getCreatedAt().toString());
@@ -521,6 +679,8 @@ public class PaymentService {
             case 2 -> "SUCCESS";
             case 3 -> "FAILED";
             case 4 -> "REFUNDED";
+            case 5 -> "COMPLIANCE_REVIEW";
+            case 6 -> "COMPLIANCE_REJECTED";
             default -> "UNKNOWN";
         };
     }

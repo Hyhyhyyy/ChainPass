@@ -3,10 +3,6 @@ import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Document, Download, Search, ArrowUp, ArrowDown } from '@element-plus/icons-vue'
 import { paymentApi, type TransactionHistory } from '@/api/payment'
-import { mockTransactions } from '@/mock/previewData'
-
-// 预览模式
-const PREVIEW_MODE = true
 
 // 状态
 const loading = ref(false)
@@ -19,15 +15,10 @@ const dateRange = ref<[Date, Date] | null>(null)
 async function fetchHistory() {
   loading.value = true
   try {
-    if (PREVIEW_MODE) {
-      transactions.value = mockTransactions as any
+    const res = await paymentApi.getHistory()
+    if (res.code === 200) {
+      transactions.value = res.data || []
       applyFilter()
-    } else {
-      const res = await paymentApi.getHistory()
-      if (res.code === 200) {
-        transactions.value = res.data || []
-        applyFilter()
-      }
     }
   } catch (error) {
     ElMessage.error('获取交易历史失败')
@@ -87,7 +78,25 @@ function getTypeColor(type: string) {
 
 // 导出记录
 function exportRecords() {
-  ElMessage.info('导出功能开发中...')
+  if (filteredTransactions.value.length === 0) {
+    ElMessage.warning('没有可导出的记录')
+    return
+  }
+  const escapeCsv = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`
+  const rows = [
+    ['订单号', '类型', '交易对象DID', '金额', '币种', '状态', '说明', '创建时间'],
+    ...filteredTransactions.value.map(tx => [
+      tx.orderNo, tx.type, tx.counterpartyDid, tx.amount, tx.currency,
+      tx.status, tx.description ?? '', tx.createdAt
+    ])
+  ]
+  const csv = `\uFEFF${rows.map(row => row.map(escapeCsv).join(',')).join('\r\n')}`
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `chainpass-ledger-${new Date().toISOString().slice(0, 10)}.csv`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 onMounted(() => {

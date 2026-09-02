@@ -2,7 +2,6 @@ package com.chainpass.vc.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chainpass.vc.entity.VCRecord;
-import com.chainpass.vc.entity.VCType;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -44,23 +43,11 @@ public interface VCRecordMapper extends BaseMapper<VCRecord> {
      */
     @Update("UPDATE chain_vc SET status = 1 WHERE status = 0 AND expires_at < NOW()")
     int updateExpired();
-}
 
-/**
- * VC类型Mapper
- */
-@Mapper
-public interface VCTypeMapper extends BaseMapper<VCType> {
+    @Update("UPDATE chain_vc SET status = #{status} WHERE vc_id = #{vcId}")
+    int updateStatus(String vcId, Integer status);
 
-    /**
-     * 根据类型编码查询
-     */
-    @Select("SELECT * FROM chain_vc_type WHERE type_code = #{typeCode}")
-    VCType findByTypeCode(String typeCode);
-
-    /**
-     * 查询所有启用的类型
-     */
-    @Select("SELECT * FROM chain_vc_type WHERE status = 0 ORDER BY sort_order")
-    List<VCType> findAllEnabled();
+    default int updateExpiredStatus() {
+        return updateExpired();
+    }
 }
