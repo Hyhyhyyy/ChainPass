@@ -1,10 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+    <linearGradient id="chainpass" x1="8" y1="16" x2="92" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#102f95"/>
+      <stop offset="0.58" stop-color="#0798df"/>
+      <stop offset="1" stop-color="#10d7cc"/>
     </linearGradient>
   </defs>
-  <circle cx="50" cy="50" r="45" fill="url(#grad)"/>
-  <path d="M30 50 L45 65 L70 35" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <rect width="100" height="100" rx="22" fill="white"/>
+  <path d="M50 10 84 27v25c0 22-13 33-34 42C29 85 16 74 16 52V27L50 10Z" fill="none" stroke="url(#chainpass)" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M40 58h-6a11 11 0 1 1 0-22h10M60 42h6a11 11 0 1 1 0 22H56M39 50h22" fill="none" stroke="url(#chainpass)" stroke-width="8" stroke-linecap="round"/>
 </svg>

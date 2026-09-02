@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import { User, Lock, Message, Phone } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { authApi } from '@/api'
+import BrandLogo from '@/components/common/BrandLogo.vue'
 
 const router = useRouter()
 
@@ -77,11 +78,9 @@ async function handleRegister() {
     <div class="register-card">
       <!-- Logo 和标题 -->
       <div class="header">
-        <div class="logo-badge">
-          <img src="@/assets/logo.jpg" alt="ChainPass" />
-        </div>
+        <BrandLogo class="auth-logo" />
         <h1 class="title">创建账户</h1>
-        <p class="subtitle">加入 ChainPass，体验本地数字身份与签名凭证</p>
+        <p class="subtitle">加入 ChainPass，建立可信身份并体验合规跨境支付</p>
       </div>
 
       <!-- 注册表单 -->
@@ -206,19 +205,9 @@ async function handleRegister() {
   margin-bottom: var(--spacing-xl);
 }
 
-.logo-badge {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto var(--spacing-md);
-  padding: var(--spacing-md);
-  background: linear-gradient(135deg, #1d4ed8 0%, #0c4a6e 100%);
-  border-radius: var(--radius-full);
-  box-shadow: 0 10px 25px rgba(29, 78, 216, 0.4);
-}
-
-.logo-badge img {
-  width: 100%;
-  height: 100%;
+.auth-logo {
+  width: 154px;
+  margin-bottom: var(--spacing-md);
 }
 
 .title {
@@ -293,5 +282,15 @@ async function handleRegister() {
   text-align: center;
   color: #64748b;
   font-size: 12px;
+}
+
+@media (max-height: 820px) {
+  .auth-logo {
+    width: 116px;
+  }
+
+  .header {
+    margin-bottom: var(--spacing-md);
+  }
 }
 </style>

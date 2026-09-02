@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores'
 import { useUserStore } from '@/stores/modules/user'
+import BrandLogo from '@/components/common/BrandLogo.vue'
 import {
   Odometer, Key, Postcard, Tickets, Wallet, Position,
   Document, User, Setting, UserFilled,
@@ -96,11 +97,12 @@ function navigateTo(path: string) {
   <aside class="sidebar" :style="{ width }">
     <!-- Logo -->
     <div class="logo-container" @click="navigateTo('/dashboard')">
-      <div class="logo-icon">
-        <img src="@/assets/logo.jpg" alt="ChainPass" class="logo" />
-      </div>
+      <BrandLogo variant="mark" />
       <transition name="fade">
-        <span v-if="!collapsed" class="logo-text">ChainPass</span>
+        <span v-if="!collapsed" class="brand-copy">
+          <span class="logo-text">ChainPass</span>
+          <span class="logo-tagline">身份 · 合规 · 支付</span>
+        </span>
       </transition>
     </div>
 
@@ -172,35 +174,37 @@ function navigateTo(path: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   height: 72px;
   padding: 16px;
   cursor: pointer;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.logo-icon {
-  width: 40px;
-  height: 40px;
+.brand-copy {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  flex-shrink: 0;
-}
-
-.logo {
-  width: 24px;
-  height: 24px;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
 }
 
 .logo-text {
-  font-size: 20px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  font-size: 21px;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -0.5px;
+  background: linear-gradient(100deg, #60a5fa, #22d3ee);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+}
+
+.logo-tagline {
+  margin-top: 6px;
+  color: #94a3b8;
+  font-size: 10px;
+  letter-spacing: 1.2px;
   white-space: nowrap;
 }
 

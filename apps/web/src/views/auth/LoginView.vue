@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
+import BrandLogo from '@/components/common/BrandLogo.vue'
 import type { FormInstance, FormRules } from 'element-plus'
 
 const router = useRouter()
@@ -76,11 +77,8 @@ onMounted(() => {
     <div class="login-card">
       <!-- Logo 和标题 -->
       <div class="header">
-        <div class="logo-badge">
-          <img src="@/assets/logo.jpg" alt="ChainPass" />
-        </div>
-        <h1 class="title">ChainPass</h1>
-        <p class="subtitle">可验证数字身份与沙盒结算系统</p>
+        <BrandLogo class="auth-logo" />
+        <p class="subtitle">可信身份 · 合规审查 · 跨境支付</p>
       </div>
 
       <!-- 登录方式切换 -->
@@ -197,26 +195,9 @@ onMounted(() => {
   margin-bottom: var(--spacing-xl);
 }
 
-.logo-badge {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto var(--spacing-md);
-  padding: var(--spacing-md);
-  background: linear-gradient(135deg, #1d4ed8 0%, #0c4a6e 100%);
-  border-radius: var(--radius-full);
-  box-shadow: 0 10px 25px rgba(29, 78, 216, 0.4);
-}
-
-.logo-badge img {
-  width: 100%;
-  height: 100%;
-}
-
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #f8fafc;
-  margin-bottom: var(--spacing-xs);
+.auth-logo {
+  width: 180px;
+  margin-bottom: var(--spacing-md);
 }
 
 .subtitle {
@@ -366,5 +347,15 @@ onMounted(() => {
   text-align: center;
   color: #64748b;
   font-size: 12px;
+}
+
+@media (max-height: 760px) {
+  .auth-logo {
+    width: 132px;
+  }
+
+  .header {
+    margin-bottom: var(--spacing-md);
+  }
 }
 </style>
