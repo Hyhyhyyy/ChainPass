@@ -1,4 +1,22 @@
-# ChainPass
+
+![](./banner1.png)
+
+<!-- <p align="center">
+  <img src="./assets/chainpass-banner.png" width="850" alt="ChainPass" />
+</p> -->
+
+<h3 align="center">
+  <b>基于区块链可信身份技术，构建安全、隐私、可复用的跨境数字身份与合规支付解决方案。</b>
+</h3>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Blockchain-Enabled-1683D8?style=flat&logo=ethereum&logoColor=white" />
+  <img src="https://img.shields.io/badge/W3C-DID-1683D8?style=flat&logo=w3c&logoColor=white" />
+  <img src="https://img.shields.io/badge/Verifiable-Credentials-1683D8?style=flat" />
+  <img src="https://img.shields.io/badge/KYC-Verification-1683D8?style=flat" />
+  <img src="https://img.shields.io/badge/Cross--border-Payment-1683D8?style=flat" />
+  <img src="https://img.shields.io/badge/ZKP-Privacy-1683D8?style=flat" />
+</p>
 
 ChainPass 是一个可运行的**跨境数字身份与合规支付原型系统**：Vue 3 前端调用 Spring Boot API，以 MySQL 保存用户、`did:chainpass` 本地标识、签名凭证、身份审核、跨境订单、可解释风险决策、人工支付复核和多币种测试额度，以 Redis 保存登录态、刷新令牌、汇率缓存和凭证签发密钥。
 
