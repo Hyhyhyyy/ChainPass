@@ -14,7 +14,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# 1. 生成 JWT 密钥 (HS256 需要至少 256 位 = 32 字符)
+# 1. 生成 JWT 密钥 (HS256 需至少 256 位 = 32 字符)
 echo ""
 echo "📝 生成 JWT 密钥..."
 JWT_SECRET=$(openssl rand -base64 64 | tr -d '\n' | head -c 64)
