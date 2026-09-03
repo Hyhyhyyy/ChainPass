@@ -24,6 +24,45 @@ ChainPass 是一个可运行的**跨境数字身份与合规支付原型系统**
 
 参赛准备请阅读 [中国国际大学生创新大赛（2026）适配说明](docs/COMPETITION_2026_COMPLIANCE.md)。文档是团队内部参考，不代替学校、省级教育行政部门或大赛组委会审核。
 
+## 产品界面截图
+
+以下截图按“注册登录 → DID 身份 → KYC 审核 → 可验证凭证 → 钱包”流程排列。
+
+### 注册与登录
+
+<p align="center">
+  <img src="./docs/images/微信图片_20260902205600_112_54.jpg" width="49%" alt="ChainPass 登录页面" />
+  <img src="./docs/images/微信图片_20260902205601_113_54.jpg" width="49%" alt="ChainPass 注册页面" />
+  <img src="./docs/images/微信图片_20260902205602_114_54.jpg" width="49%" alt="ChainPass 登录页面演示" />
+</p>
+
+### 新手引导与 DID 身份
+
+<p align="center">
+  <img src="./docs/images/微信图片_20260902205602_115_54.jpg" width="49%" alt="首次登录新手引导" />
+  <img src="./docs/images/微信图片_20260902205602_116_54.jpg" width="49%" alt="创建 DID 身份" />
+  <img src="./docs/images/微信图片_20260902205603_117_54.jpg" width="49%" alt="DID 身份页面" />
+  <img src="./docs/images/微信图片_20260902205603_118_54.jpg" width="49%" alt="已激活的 DID 身份" />
+</p>
+
+### KYC 身份认证与人工审核
+
+<p align="center">
+  <img src="./docs/images/微信图片_20260902205604_119_54.jpg" width="49%" alt="KYC 身份认证" />
+  <img src="./docs/images/微信图片_20260902205604_120_54.jpg" width="49%" alt="填写 KYC 认证信息" />
+  <img src="./docs/images/微信图片_20260902205615_121_54.jpg" width="49%" alt="KYC 审核中" />
+  <img src="./docs/images/微信图片_20260902205615_122_54.jpg" width="49%" alt="KYC 人工审核列表" />
+  <img src="./docs/images/微信图片_20260902205615_123_54.jpg" width="49%" alt="批准 KYC 申请" />
+</p>
+
+### 可验证凭证与钱包
+
+<p align="center">
+  <img src="./docs/images/微信图片_20260902205615_124_54.jpg" width="49%" alt="审核通过后的页面" />
+  <img src="./docs/images/微信图片_20260902205615_125_54.jpg" width="49%" alt="可验证凭证列表" />
+  <img src="./docs/images/微信图片_20260902205615_126_54.jpg" width="49%" alt="ChainPass 多币种钱包" />
+</p>
+
 ## 已实现功能
 
 | 模块 | 可验证行为 | 边界 |
